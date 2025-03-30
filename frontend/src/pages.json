@@ -1,16 +1,65 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-		{
-			"path": "pages/index/index",
-			"style": {
-				"navigationBarTitleText": "uni-app"
-			}
+	"easycom": {
+	  "autoscan": true,
+	  "custom": {
+		"^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
+	  }
+	},
+	"pages": [
+	  {
+		"path": "pages/home/home",
+		"style": {
+		  "navigationBarTitleText": "健康主页",
+		  "navigationBarBackgroundColor": "#4CD964",
+		  "navigationBarTextStyle": "white",
+		  "enablePullDownRefresh": true
 		}
+	  },
+	  {
+		"path": "pages/user-profile/user-profile",
+		"style": {
+		  "navigationBarTitleText": "个人中心",
+		  "navigationBarBackgroundColor": "#4CD964",
+		  "navigationBarTextStyle": "white"
+		}
+	  },
+	  {
+		"path": "pages/camera/camera",
+		"style": {
+		  "navigationBarTitleText": "拍照识别",
+		  "navigationStyle": "custom",
+		  "backgroundColor": "#000000",
+		  "disableScroll": true
+		}
+	  }
 	],
 	"globalStyle": {
-		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
+	  "navigationBarTextStyle": "white",
+	  "navigationBarTitleText": "轻知健康",
+	  "navigationBarBackgroundColor": "#4CD964",
+	  "backgroundColor": "#F7F8FA",
+	  "app-plus": {
+		"titleNView": false
+	  }
+	},
+	"tabBar": {
+	  "color": "#7F7F7F",
+	  "selectedColor": "#4CD964",
+	  "backgroundColor": "#FFFFFF",
+	  "borderStyle": "white",
+	  "list": [
+		{
+		  "pagePath": "pages/home/home",
+		  "text": "首页"
+		},
+		{
+			"pagePath": "pages/camera/camera",
+			"text": "相机"
+		},
+		{
+		  "pagePath": "pages/user-profile/user-profile",
+		  "text": "我的"
+		}
+	  ]
 	}
-}
+  }
