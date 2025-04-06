@@ -1,35 +1,65 @@
 <template>
   <view class="home-container">
     <view class="search-container">
-    <!-- 搜索框 -->
-    <view class="search-box">
-      <uni-icons type="search" size="18" color="#999" class="search-icon"></uni-icons>
-      <input 
-        class="search-input" 
-        placeholder="请输入搜索内容" 
-        placeholder-class="placeholder-style"
-        v-model="searchText"
-        @input="handleInput"
-        focus
-      />
-    </view>
-    
-    <!-- 搜索建议列表 -->
-    <view class="suggestion-list" v-if="showSuggestions && searchText">
-      <view 
-        class="suggestion-item" 
-        v-for="(item, index) in suggestions" 
-        :key="index"
-        @click="selectSuggestion(item)"
-      >
-        {{ item }}
+      <!-- 搜索框 -->
+      <view class="search-box">
+        <uni-icons type="search" size="18" color="#999" class="search-icon"></uni-icons>
+        <input class="search-input" placeholder="请输入搜索内容" placeholder-class="placeholder-style" v-model="searchText"
+          @input="handleInput" focus />
       </view>
-    </view>
-  </view>
 
-    <view class="weight-chart">
+      <!-- 搜索建议列表 -->
+      <view class="suggestion-list" v-if="showSuggestions && searchText">
+        <view class="suggestion-item" v-for="(item, index) in suggestions" :key="index" @click="selectSuggestion(item)">
+          {{ item }}
+        </view>
+      </view>
+
+      <!-- <view class="weight-chart">
       <canvas canvas-id="weightChart" class="chart"></canvas>
+    </view> -->
+      <!-- 半圆盘进度条 -->
+      <!-- <view class="progress-container">
+        <canvas canvas-id="progressCanvas" class="progress-canvas"></canvas>
+        <view class="progress-info">
+          <view class="progress-value">{{ weightLost }}<text class="unit">kg</text></view>
+          <text class="progress-label">已减体重</text>
+        </view>
+      </view> -->
+      <!-- 半圆盘进度条及体重数据显示部分 -->
+
+      <view class="weight-progress-section">
+        <!-- 半圆盘进度条 -->
+        <view class="progress-wrapper">
+          <view class="progress-container">
+            <canvas canvas-id="progressCanvas" class="progress-canvas"></canvas>
+            <view class="progress-info">
+              <view class="progress-value">{{ weightLost }}<text class="unit">kg</text></view>
+              <text class="progress-label">已减体重</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 体重数据展示 -->
+        <view class="weight-data">
+          <view class="data-item">
+            <text class="data-label">初始体重</text>
+            <text class="data-value">{{ initialWeight }}<text class="unit">kg</text></text>
+          </view>
+          <view class="data-item">
+            <text class="data-label">当前体重</text>
+            <text class="data-value">{{ currentWeight }}<text class="unit">kg</text></text>
+          </view>
+          <view class="data-item">
+            <text class="data-label">目标体重</text>
+            <text class="data-value">{{ targetWeight }}<text class="unit">kg</text></text>
+          </view>
+        </view>
+      </view>
+
+
     </view>
+
 
     <view class="health-card">
       <text class="title">今日健康数据</text>
@@ -48,13 +78,9 @@
     </view>
 
     <view class="action-section">
-      <navigator
-        url="/pages/camera/camera"
-        hover-class="navigator-hover"
-        class="photo-btn"
-      >
+      <navigator url="/pages/camera/camera" hover-class="navigator-hover" class="photo-btn">
         <uni-icons type="camera" size="24" color="#fff"></uni-icons>
-        <text>拍照记录饮食</text> 
+        <text>拍照记录饮食</text>
       </navigator>
     </view>
 
@@ -93,21 +119,21 @@
           <text class="title">记录体重</text>
           <uni-icons type="close" size="24" color="#999" @click="closePopup"></uni-icons>
         </view>
-        
+
         <view class="weight-display">
           <text class="value">{{ currentValue }}</text>
           <text class="unit">kg</text>
         </view>
-        
+
         <view class="number-pad">
-          <view class="number-btn" v-for="num in [1,2,3,4,5,6,7,8,9,'.',0]" :key="num" @click="inputNum(num)">
+          <view class="number-btn" v-for="num in [1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0]" :key="num" @click="inputNum(num)">
             {{ num }}
           </view>
           <view class="number-btn delete" @click="deleteNum">
             <uni-icons type="backspace" size="24" color="#666"></uni-icons>
           </view>
         </view>
-        
+
         <button class="confirm-btn" :class="{ disabled: !isValid }" @click="confirmWeight">
           确认记录
         </button>
@@ -135,18 +161,30 @@ export default {
         "移动端适配",
         "HBuilder使用指南"
       ],
-      suggestions: []
+      suggestions: [],
+      initialWeight: 68.5,  // 初始体重
+      currentWeight: 64.2,  // 当前体重
+      targetWeight: 60.0,   // 目标体重
     }
   },
   onReady() {
     this.drawWeightChart()
     this.currentValue = wx.getStorageSync('lastWeight') ? wx.getStorageSync('lastWeight').toString() : ''
+    this.drawProgressCircle()
   },
   computed: {
     isValid() {
-      return /^\d+\.?\d*$/.test(this.currentValue) && 
-             parseFloat(this.currentValue) > 20 && 
-             parseFloat(this.currentValue) < 200
+      return /^\d+\.?\d*$/.test(this.currentValue) &&
+        parseFloat(this.currentValue) > 20 &&
+        parseFloat(this.currentValue) < 200
+    },
+    weightLost() {
+      return (this.initialWeight - this.currentWeight).toFixed(1)
+    },
+    progressPercentage() {
+      const total = this.initialWeight - this.targetWeight
+      const lost = this.initialWeight - this.currentWeight
+      return Math.min(100, Math.max(0, (lost / total) * 100))
     }
   },
   methods: {
@@ -156,49 +194,88 @@ export default {
       const chartHeight = 300
       const maxWeight = Math.max(...this.weightData) + 1
       const minWeight = Math.min(...this.weightData) - 1
-      
+
       ctx.setFillStyle('#fff')
       ctx.fillRect(0, 0, chartWidth, chartHeight)
-      
+
       ctx.setStrokeStyle('#e5e5e5')
       ctx.setLineWidth(1)
-      
+
       for (let i = 0; i < 5; i++) {
         const y = 50 + i * 60
         ctx.moveTo(40, y)
         ctx.lineTo(chartWidth - 20, y)
         ctx.stroke()
-        
+
         ctx.setFontSize(20)
         ctx.setFillStyle('#999')
         ctx.fillText((maxWeight - (maxWeight - minWeight) / 4 * i).toFixed(1), 10, y + 5)
       }
-      
+
       ctx.setStrokeStyle('#4cd964')
       ctx.setLineWidth(3)
       ctx.beginPath()
-      
+
       this.weightData.forEach((item, index) => {
         const x = 60 + index * 100
         const y = 50 + (maxWeight - item) / (maxWeight - minWeight) * 240
-        
+
         if (index === 0) {
           ctx.moveTo(x, y)
         } else {
           ctx.lineTo(x, y)
         }
-        
+
         ctx.setFillStyle('#4cd964')
         ctx.beginPath()
         ctx.arc(x, y, 5, 0, 2 * Math.PI)
         ctx.fill()
-        
+
         ctx.setFontSize(22)
         ctx.setFillStyle('#666')
         ctx.fillText(this.dates[index], x - 15, chartHeight - 10)
       })
-      
+
       ctx.stroke()
+      ctx.draw()
+    },
+    drawProgressCircle() {
+      const ctx = uni.createCanvasContext('progressCanvas', this)
+      const width = 350
+      const height = 150
+      const centerX = width / 2
+      const centerY = height
+      const radius = 120
+      const lineWidth = 12
+
+      // 清除画布
+      ctx.clearRect(0, 0, width, height)
+
+      // 绘制背景轨道
+      ctx.beginPath()
+      ctx.arc(centerX, centerY, radius, Math.PI, 0, false)
+      ctx.setStrokeStyle('#f0f0f0')
+      ctx.setLineWidth(lineWidth)
+      ctx.setLineCap('round')
+      ctx.stroke()
+
+      // 绘制进度条
+      const endAngle = Math.PI + (Math.PI * this.progressPercentage / 100)
+      ctx.beginPath()
+      ctx.arc(centerX, centerY, radius, Math.PI, endAngle, false)
+      ctx.setStrokeStyle('#4cd964')
+      ctx.setLineWidth(lineWidth)
+      ctx.setLineCap('round')
+      ctx.stroke()
+
+      // 绘制进度条端点圆点
+      const dotX = centerX + radius * Math.cos(endAngle)
+      const dotY = centerY + radius * Math.sin(endAngle)
+      ctx.beginPath()
+      ctx.arc(dotX, dotY, lineWidth / 2, 0, Math.PI * 2)
+      ctx.setFillStyle('#4cd964')
+      ctx.fill()
+
       ctx.draw()
     },
     goToCamera() {
@@ -227,7 +304,7 @@ export default {
     inputNum(num) {
       if (num === '.' && this.currentValue.includes('.')) return
       if (this.currentValue.length >= 5) return
-      
+
       this.currentValue += num.toString()
       if (num === '.' && !this.currentValue.includes('.')) {
         this.currentValue += '0'
@@ -248,19 +325,19 @@ export default {
       this.closePopup()
       uni.showToast({ title: `成功记录: ${weight}kg`, icon: 'success' })
     },
-     // 输入处理
-     handleInput() {
+    // 输入处理
+    handleInput() {
       if (this.searchText) {
         this.showSuggestions = true
         // 简单过滤静态数据作为建议
-        this.suggestions = this.staticSuggestions.filter(item => 
+        this.suggestions = this.staticSuggestions.filter(item =>
           item.toLowerCase().includes(this.searchText.toLowerCase())
         )
       } else {
         this.showSuggestions = false
       }
     },
-    
+
     // 选择建议项
     selectSuggestion(item) {
       this.searchText = item
@@ -337,13 +414,93 @@ export default {
   background-color: #f5f5f5;
 }
 
+.weight-progress-section {
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin: 24rpx auto;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.05);
+  width: 88%;
+}
+
+.progress-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30rpx;
+}
+
+.progress-container {
+  position: relative;
+  height: 300rpx; /* 固定高度与canvas一致 */
+  width: 600rpx; /* 固定宽度与canvas一致 */
+}
+
+.progress-canvas {
+  width: 600rpx !important; /* 确保不被覆盖 */
+  height: 300rpx !important;
+  display: block; /* 关键：使canvas成为块级元素 */
+}
+
+/* 进度信息居中显示 */
+.progress-info {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 60rpx;
+  text-align: center;
+}
+
+.progress-value {
+  font-size: 56rpx;
+  font-weight: bold;
+  color: #4cd964;
+  line-height: 1.2;
+}
+
+.progress-label {
+  font-size: 24rpx;
+  color: #999;
+  display: block;
+}
+
+/* 体重数据展示 */
+.weight-data {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20rpx;
+}
+
+.data-item {
+  text-align: center;
+  flex: 1;
+}
+
+.data-label {
+  font-size: 24rpx;
+  color: #999;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.data-value {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.unit {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 4rpx;
+}
 
 .weight-chart {
   background: white;
   border-radius: 16rpx;
   padding: 20rpx;
   margin-bottom: 24rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.05);
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
 }
 
 .chart {
@@ -355,8 +512,9 @@ export default {
   background: white;
   border-radius: 16rpx;
   padding: 24rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.05);
+  margin: 0 auto 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+  width: 88%;
 }
 
 .title {
@@ -406,13 +564,15 @@ export default {
   text-align: center;
   padding: 20rpx 0;
   border-radius: 12rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
 .recent-records {
   background: white;
   border-radius: 16rpx;
   padding: 24rpx;
+  width: 88%;
+  margin: 0 auto;
 }
 
 .section-title {

@@ -31,7 +31,15 @@
 		  "backgroundColor": "#000000",
 		  "disableScroll": true
 		}
-	  }
+	  },
+	  {
+		"path": "pages/login/login",
+		"style": {
+		  "navigationBarTitleText": "登录",
+		  "navigationBarBackgroundColor": "#4CD964",
+		  "navigationBarTextStyle": "white"
+		}
+	  },
 	],
 	"globalStyle": {
 	  "navigationBarTextStyle": "white",
@@ -53,8 +61,8 @@
 		  "text": "首页"
 		},
 		{
-			"pagePath": "pages/camera/camera",
-			"text": "相机"
+			"pagePath": "pages/login/login",
+			"text": "登录"
 		},
 		{
 		  "pagePath": "pages/user-profile/user-profile",
