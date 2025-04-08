@@ -1,9 +1,9 @@
 <template>
   <view class="home-container">
     <SearchBar />
-    <WeightChart />
+    <WeightChart :isCanvasVisible="isCanvasVisible" />
     <HealthCard />
-    <ButtonGroup />
+    <ButtonGroup @toggle-canvas="toggleCanvas" />
     <RecentRecord />
   </view>
 </template>
@@ -24,10 +24,7 @@ export default {
   },
   data() {
     return {
-      weightData: [65.2, 64.8, 64.5, 64.3, 64.1, 63.9, 63.7],
-      dates: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-      currentValue: '',
-      isShow: false,
+      isCanvasVisible: true,
       searchText: '',
       staticSuggestions: [
         "Uniapp开发教程",
@@ -42,17 +39,10 @@ export default {
       suggestions: [],
     }
   },
-  onReady() {
-    this.currentValue = wx.getStorageSync('lastWeight') ? wx.getStorageSync('lastWeight').toString() : ''
-  },
-  computed: {
-    isValid() {
-      return /^\d+\.?\d*$/.test(this.currentValue) &&
-        parseFloat(this.currentValue) > 20 &&
-        parseFloat(this.currentValue) < 200
-    },
-  },
   methods: {
+    toggleCanvas(visible) {
+      this.isCanvasVisible = visible // 切换 canvas 的显示状态
+    },
     // 输入处理
     handleInput() {
       if (this.searchText) {

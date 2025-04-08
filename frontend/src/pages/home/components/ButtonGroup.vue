@@ -17,7 +17,7 @@
     </view>
 
     <uni-popup ref="weightPopup" type="bottom" @change="popupChange">
-      <view class="weight-popup">
+      <view class="custom-weight-popup">
         <view class="popup-header">
           <text class="title">记录体重</text>
           <uni-icons type="close" size="24" color="#999" @click="closePopup"></uni-icons>
@@ -38,7 +38,7 @@
             {{ num }}
           </view>
           <view class="number-btn delete" @click="deleteNum">
-            <uni-icons type="backspace" size="24" color="#666"></uni-icons>
+            <uni-icons type="back" size="24" color="#666"></uni-icons>
           </view>
         </view>
 
@@ -47,6 +47,7 @@
         </button>
       </view>
     </uni-popup>
+
   </view>
 </template>
 
@@ -65,46 +66,46 @@ export default {
   data() {
     return {
       currentValue: this.lastWeight ? this.lastWeight.toString() : ''
-    };
+    } 
   },
   computed: {
     isValid() {
       return /^\d+\.?\d*$/.test(this.currentValue) &&
         parseFloat(this.currentValue) > 20 &&
-        parseFloat(this.currentValue) < 200;
+        parseFloat(this.currentValue) < 200 
     }
   },
   methods: {
     goToCamera() {
       uni.navigateTo({
         url: '/pages/camera/camera'
-      });
+      }) 
     },
     goToWater() {
       uni.navigateTo({
         url: '/pages/water/water'
-      });
+      }) 
     },
     showWeightInput() {
       this.$nextTick(() => {
         if (this.$refs.weightPopup) {
-          this.$refs.weightPopup.open();
+          this.$refs.weightPopup.open() 
         }
-      });
+      }) 
     },
     popupChange(e) {
-      this.$emit('popup-change', e.show);
+      this.$emit('popup-change', e.show) 
     },
     closePopup() {
-      this.$refs.weightPopup.close();
+      this.$refs.weightPopup.close() 
     },
     inputNum(num) {
-      if (num === '.' && this.currentValue.includes('.')) return;
-      if (this.currentValue.length >= 5) return;
+      if (num === '.' && this.currentValue.includes('.')) return 
+      if (this.currentValue.length >= 5) return 
 
-      this.currentValue += num.toString();
+      this.currentValue += num.toString() 
       if (num === '.' && !this.currentValue.includes('.')) {
-        this.currentValue += '0';
+        this.currentValue += '0' 
       }
     },
     deleteNum() {
@@ -159,73 +160,66 @@ export default {
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
-/* 体重记录弹窗样式 */
-.weight-popup {
+.custom-weight-popup {
   background: #fff;
   border-radius: 24rpx 24rpx 0 0;
-  padding: 40rpx;
-  padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
+  padding: 20rpx; 
+  height: auto;
+  max-height: 60vh; 
+  box-sizing: border-box; 
 }
 
 .popup-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40rpx;
+  margin-bottom: 20rpx; 
 }
 
 .weight-display {
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  margin: 40rpx 0;
+  margin: 20rpx 0; 
 }
 
 .value {
-  font-size: 80rpx;
+  font-size: 60rpx;
   font-weight: bold;
   color: #333;
 }
 
 .unit {
-  font-size: 36rpx;
+  font-size: 28rpx; 
   color: #999;
   margin-left: 10rpx;
-  padding-bottom: 12rpx;
+  padding-bottom: 8rpx;
 }
 
 .number-pad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20rpx;
-  margin-bottom: 40rpx;
+  gap: 16rpx; 
+  margin-bottom: 20rpx;
 }
 
 .number-btn {
-  height: 100rpx;
+  height: 80rpx; 
   display: flex;
   justify-content: center;
   align-items: center;
   background: #f5f5f5;
   border-radius: 12rpx;
-  font-size: 40rpx;
-}
-
-.number-btn:active {
-  background: #e5e5e5;
-}
-
-.delete {
-  background: #f0f0f0;
+  font-size: 36rpx; 
 }
 
 .confirm-btn {
-  background: #4CD964;
+  background: #4cd964;
   color: white;
   border: none;
   border-radius: 50rpx;
-  height: 90rpx;
-  font-size: 32rpx;
+  height: 80rpx; 
+  font-size: 28rpx; 
   width: 100%;
 }
 

@@ -2,7 +2,7 @@
   <view class="weight-progress-section">
     <view class="progress-wrapper">
       <view class="progress-container">
-        <canvas canvas-id="progressCanvas" class="progress-canvas"></canvas>
+        <!-- <canvas canvas-id="progressCanvas" class="progress-canvas"></canvas> -->
         <view class="progress-info">
           <view class="progress-value">{{ weightLost }}<text class="unit">kg</text></view>
           <text class="progress-label">已减体重</text>
@@ -122,6 +122,7 @@ export default {
   width: 600rpx !important;
   height: 260rpx !important;
   display: block;
+  margin: 0 auto;
 }
 
 .progress-info {
