@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import SearchBar from './components/SearchBar.vue'
+import SearchBar from '@/components/SearchBar.vue'
 export default {
   components: {
     SearchBar
@@ -79,7 +79,7 @@ export default {
   background-color: #ffffff;
   border-radius: 12rpx;
   margin: 0 auto 20rpx;
-  box-shadow: 0rpx 4rpx 8rpx 4rpx #cccccc;
+  box-shadow: 0rpx 4rpx 8rpx 2rpx #cccccc;
   overflow: hidden;
 }
 

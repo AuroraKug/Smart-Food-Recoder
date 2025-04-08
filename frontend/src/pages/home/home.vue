@@ -9,10 +9,10 @@
 </template>
 
 <script>
+import SearchBar from '@/components/SearchBar.vue'
 import HealthCard from './components/HealthCard.vue'
 import ButtonGroup from './components/ButtonGroup.vue'
 import RecentRecord from './components/RecentRecord.vue'
-import SearchBar from './components/SearchBar.vue'
 import WeightChart from './components/WeightChart.vue'
 export default {
   components: {
