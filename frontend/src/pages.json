@@ -70,12 +70,12 @@
         "text": "首页"
       },
       {
-        "pagePath": "pages/user-profile/user-profile",
-        "text": "我的"
-      },
-      {
         "pagePath": "pages/food-list/food-list",
         "text": "食物"
+      },
+      {
+        "pagePath": "pages/user-profile/user-profile",
+        "text": "我的"
       }
     ]
   }

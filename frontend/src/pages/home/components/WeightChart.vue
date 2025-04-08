@@ -2,7 +2,7 @@
   <view class="weight-progress-section">
     <view class="progress-wrapper">
       <view class="progress-container">
-        <!-- <canvas canvas-id="progressCanvas" class="progress-canvas"></canvas> -->
+        <canvas canvas-id="progressCanvas" class="progress-canvas"></canvas>
         <view class="progress-info">
           <view class="progress-value">{{ weightLost }}<text class="unit">kg</text></view>
           <text class="progress-label">已减体重</text>
@@ -11,17 +11,9 @@
     </view>
 
     <view class="weight-data">
-      <view class="data-item">
-        <text class="data-label">初始体重</text>
-        <text class="data-value">{{ initialWeight }}<text class="unit">kg</text></text>
-      </view>
-      <view class="data-item">
-        <text class="data-label">当前体重</text>
-        <text class="data-value">{{ currentWeight }}<text class="unit">kg</text></text>
-      </view>
-      <view class="data-item">
-        <text class="data-label">目标体重</text>
-        <text class="data-value">{{ targetWeight }}<text class="unit">kg</text></text>
+      <view class="data-item" v-for="(item, index) in weightData" :key="index">
+        <text class="data-label">{{ item.label }}</text>
+        <text class="data-value">{{ item.value }}<text class="unit">kg</text></text>
       </view>
     </view>
   </view>
@@ -34,6 +26,11 @@ export default {
       initialWeight: 68.5,
       currentWeight: 64.2,
       targetWeight: 60.0,
+      weightData: [
+        { label: '初始体重', value: 68.5 },
+        { label: '当前体重', value: 64.2 },
+        { label: '目标体重', value: 60.0 }
+      ]
     }
   },
   computed: {
@@ -48,51 +45,62 @@ export default {
   },
   methods: {
     drawProgressCircle() {
-      const ctx = uni.createCanvasContext('progressCanvas', this)
-      const width = 350
-      const height = 150
-      const centerX = width / 2
-      const centerY = height
-      const radius = 120
-      const lineWidth = 12
+      const query = uni.createSelectorQuery().in(this)
+      query.select('.progress-container').boundingClientRect((rect) => {
+        if (!rect) return
 
-      ctx.clearRect(0, 0, width, height)
+        const width = rect.width
+        const height = rect.height
+        const centerX = width / 2
+        const centerY = height / 2
+        const radius = Math.min(width, height) / 3 
+        const lineWidth = Math.min(12, radius / 10)
+        const ctx = uni.createCanvasContext('progressCanvas', this)
+        ctx.clearRect(0, 0, width, height)
 
-      ctx.beginPath()
-      ctx.arc(centerX, centerY, radius, Math.PI, 0, false)
-      ctx.setStrokeStyle('#f0f0f0')
-      ctx.setLineWidth(lineWidth)
-      ctx.setLineCap('round')
-      ctx.stroke()
+        ctx.beginPath()
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2, false)
+        ctx.setStrokeStyle('#f0f0f0')
+        ctx.setLineWidth(lineWidth)
+        ctx.setLineCap('round')
+        ctx.stroke()
 
-      const endAngle = Math.PI + (Math.PI * this.progressPercentage / 100)
-      ctx.beginPath()
-      ctx.arc(centerX, centerY, radius, Math.PI, endAngle, false)
-      ctx.setStrokeStyle('#4cd964')
-      ctx.setLineWidth(lineWidth)
-      ctx.setLineCap('round')
-      ctx.stroke()
+        const endAngle = (Math.PI * 2 * this.progressPercentage / 100)
+        ctx.beginPath()
+        ctx.arc(centerX, centerY, radius, -Math.PI / 2, -Math.PI / 2 + endAngle, false)
+        ctx.setStrokeStyle('#4cd964')
+        ctx.setLineWidth(lineWidth)
+        ctx.setLineCap('round')
+        ctx.stroke()
 
-      const dotX = centerX + radius * Math.cos(endAngle)
-      const dotY = centerY + radius * Math.sin(endAngle)
-      ctx.beginPath()
-      ctx.arc(dotX, dotY, lineWidth / 2, 0, Math.PI * 2)
-      ctx.setFillStyle('#4cd964')
-      ctx.fill()
+        const dotX = centerX + radius * Math.cos(-Math.PI / 2 + endAngle)
+        const dotY = centerY + radius * Math.sin(-Math.PI / 2 + endAngle)
+        ctx.beginPath()
+        ctx.arc(dotX, dotY, lineWidth / 2, 0, Math.PI * 2)
+        ctx.setFillStyle('#4cd964')
+        ctx.fill()
 
-      ctx.draw()
+        ctx.draw()
+      }).exec()
     }
   },
   mounted() {
-    this.drawProgressCircle();
+    this.drawProgressCircle()
+    uni.getSystemInfo({
+      success: (res) => {
+        this.windowWidth = res.windowWidth
+      }
+    })
+    uni.onWindowResize(() => {
+      this.drawProgressCircle()
+    })
   },
   watch: {
     currentWeight() {
-      this.drawProgressCircle();
+      this.drawProgressCircle()
     }
   }
 }
-
 </script>
 
 <style scoped>
@@ -109,27 +117,31 @@ export default {
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-bottom: 20rpx;
+  align-items: center;
+  min-height: 260rpx; 
 }
 
 .progress-container {
   position: relative;
-  height: 260rpx;
-  width: 600rpx;
+  width: 100%; 
+  padding-top: 43.33%; 
+  background: transparent; 
 }
 
 .progress-canvas {
-  width: 600rpx !important;
-  height: 260rpx !important;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
   display: block;
-  margin: 0 auto;
 }
 
 .progress-info {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 60rpx;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   text-align: center;
 }
 
