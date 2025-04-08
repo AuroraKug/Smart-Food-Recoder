@@ -1,82 +1,90 @@
 {
-  "easycom": {
-    "autoscan": true,
-    "custom": {
-      "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
-    }
-  },
-  "pages": [
-    {
-      "path": "pages/login/login",
-      "style": {
-        "navigationBarTitleText": "登录",
-        "navigationBarBackgroundColor": "#4CD964",
-        "navigationBarTextStyle": "white"
-      }
-    },
-    {
-      "path": "pages/home/home",
-      "style": {
-        "navigationBarTitleText": "健康主页",
-        "navigationBarBackgroundColor": "#4CD964",
-        "navigationBarTextStyle": "white",
-        "enablePullDownRefresh": true
-      }
-    },
-    {
-      "path": "pages/user-profile/user-profile",
-      "style": {
-        "navigationBarTitleText": "个人中心",
-        "navigationBarBackgroundColor": "#4CD964",
-        "navigationBarTextStyle": "white"
-      }
-    },
-    {
-      "path": "pages/camera/camera",
-      "style": {
-        "navigationBarTitleText": "拍照识别",
-        "navigationStyle": "custom",
-        "backgroundColor": "#000000",
-        "disableScroll": true
-      }
-    },
-    {
-      "path": "pages/food-list/food-list",
-      "style": {
-        "navigationBarTitleText": "食物列表",
-        "navigationBarBackgroundColor": "#4CD964",
-        "navigationBarTextStyle": "white",
-        "enablePullDownRefresh": true
-      }
-    }
-  ],
-  "globalStyle": {
-    "navigationBarTextStyle": "white",
-    "navigationBarTitleText": "轻知健康",
-    "navigationBarBackgroundColor": "#4CD964",
-    "backgroundColor": "#F7F8FA",
-    "app-plus": {
-      "titleNView": false
-    }
-  },
-  "tabBar": {
-    "color": "#7F7F7F",
-    "selectedColor": "#4CD964",
-    "backgroundColor": "#FFFFFF",
-    "borderStyle": "white",
-    "list": [
-      {
-        "pagePath": "pages/home/home",
-        "text": "首页"
-      },
-      {
-        "pagePath": "pages/food-list/food-list",
-        "text": "食物"
-      },
-      {
-        "pagePath": "pages/user-profile/user-profile",
-        "text": "我的"
-      }
-    ]
-  }
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			"^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
+		}
+	},
+	"pages": [
+		{
+			"path": "pages/login/login",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"navigationBarBackgroundColor": "#4CD964",
+				"navigationBarTextStyle": "white"
+			}
+		},
+		{
+			"path": "pages/home/home",
+			"style": {
+				"navigationBarTitleText": "健康主页",
+				"navigationBarBackgroundColor": "#4CD964",
+				"navigationBarTextStyle": "white",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/user-profile/user-profile",
+			"style": {
+				"navigationBarTitleText": "个人中心",
+				"navigationBarBackgroundColor": "#4CD964",
+				"navigationBarTextStyle": "white"
+			}
+		},
+		{
+			"path": "pages/camera/camera",
+			"style": {
+				"navigationBarTitleText": "拍照识别",
+				"navigationStyle": "custom",
+				"backgroundColor": "#000000",
+				"disableScroll": true
+			}
+		},
+		{
+			"path": "pages/food-list/food-list",
+			"style": {
+				"navigationBarTitleText": "食物列表",
+				"navigationBarBackgroundColor": "#4CD964",
+				"navigationBarTextStyle": "white",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/identified-result/identified-result",
+			"style": {
+				"navigationBarTitleText": "identified-result",
+				"navigationStyle": "custom",
+				"disableScroll": true
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "white",
+		"navigationBarTitleText": "轻知健康",
+		"navigationBarBackgroundColor": "#4CD964",
+		"backgroundColor": "#F7F8FA",
+		"app-plus": {
+			"titleNView": false
+		}
+	},
+	"tabBar": {
+		"color": "#7F7F7F",
+		"selectedColor": "#4CD964",
+		"backgroundColor": "#FFFFFF",
+		"borderStyle": "white",
+		"list": [
+			{
+				"pagePath": "pages/home/home",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/food-list/food-list",
+				"text": "食物"
+			},
+			{
+				"pagePath": "pages/user-profile/user-profile",
+				"text": "我的"
+			}
+		]
+	}
 }

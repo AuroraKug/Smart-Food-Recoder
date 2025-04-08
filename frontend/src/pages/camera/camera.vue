@@ -3,7 +3,7 @@
     <!-- 相机预览区域 -->
     <camera
       class="camera-preview"
-      device-position="{{devicePosition}}"
+      :device-position="devicePosition"
       flash="off"
       @error="cameraError"
     ></camera>
@@ -45,8 +45,10 @@ export default {
       ctx.takePhoto({
         quality: 'high',
         success: (res) => {
-          uni.previewImage({
-            urls: [res.tempImagePath]
+          const imagePath = res.tempImagePath;
+          // 跳转到 identified-result 页面并传递图片路径
+          uni.navigateTo({
+            url: `/pages/identified-result/identified-result?imagePath=${encodeURIComponent(imagePath)}`
           });
         }
       });
@@ -59,8 +61,9 @@ export default {
         count: 1,
         sourceType: ['album'],
         success: (res) => {
-          uni.previewImage({
-            urls: res.tempFilePaths
+          const imagePath = res.tempFilePaths[0];
+          uni.navigateTo({
+            url: `/pages/identified-result/identified-result?imagePath=${encodeURIComponent(imagePath)}`
           });
         }
       });
@@ -77,7 +80,7 @@ export default {
 </script>
 
 <style>
-/* 基础样式 */
+/* 保持原有样式不变 */
 .camera-container {
   position: relative;
   width: 100vw;
