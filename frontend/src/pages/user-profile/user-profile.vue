@@ -24,15 +24,15 @@
         <text class="value">{{ userData.days || 0 }}</text>
         <text class="label">坚持天数</text>
       </view>
-      <view class="data-item" @click="navTo('achievement')">
+      <!-- <view class="data-item" @click="navTo('achievement')">
         <text class="value">{{ userData.achievements || 0 }}</text>
         <text class="label">成就徽章</text>
-      </view>
+      </view> -->
     </view>
 
     <!-- 设置列表 -->
     <view class="settings-list">
-      <view class="list-item" @click="navTo('info')">
+      <view class="list-item" @click="goToInfo">
         <uni-icons type="person" size="18" color="#666"></uni-icons>
         <text>个人信息设置</text>
         <uni-icons type="forward" size="14" color="#999"></uni-icons>
@@ -73,6 +73,11 @@ export default {
     }
   },
   methods: {
+    goToInfo() {
+      uni.navigateTo({
+        url:'/pages/profile-info/profile-info',
+      })
+    },
     changeAvatar() {
       uni.chooseImage({
         count: 1,

@@ -56,6 +56,14 @@
 				"navigationStyle": "custom",
 				"disableScroll": true
 			}
+		},
+		{
+			"path": "pages/profile-info/profile-info",
+			"style": {
+				"navigationBarTitleText": "个人信息",
+				"navigationBarBackgroundColor": "#4CD964",
+				"navigationBarTextStyle": "white"
+			}
 		}
 	],
 	"globalStyle": {
