@@ -6,7 +6,7 @@
     </navigator>
 
     <view class="quick-actions">
-      <view class="action-item" @click="showWeightInput">
+      <view class="action-item" @click="$refs.weightKeyboard.open(currentValue)">
         <uni-icons type="scale" size="20"></uni-icons>
         <text>记录体重</text>
       </view>
@@ -16,7 +16,7 @@
       </view>
     </view>
 
-    <uni-popup ref="weightPopup" type="bottom" @change="popupChange">
+    <!-- <uni-popup ref="weightPopup" type="bottom" @change="popupChange">
       <view class="custom-weight-popup">
         <view class="popup-header">
           <text class="title">记录体重</text>
@@ -46,13 +46,19 @@
           确认记录
         </button>
       </view>
-    </uni-popup>
+    </uni-popup> -->
+    <NumberKeyboard ref="weightKeyboard" field="currentValue" title="请输入当前体重" unit="kg" :max-length="5"
+      :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" />
 
   </view>
 </template>
 
 <script>
+import NumberKeyboard from '@/components/NumberKeyboard.vue'
 export default {
+  components: {
+    NumberKeyboard
+  },
   props: {
     lastWeight: {
       type: Number,
@@ -65,47 +71,47 @@ export default {
   },
   data() {
     return {
-      currentValue: this.lastWeight ? this.lastWeight.toString() : ''
-    } 
+      currentValue: ''
+    }
   },
   computed: {
     isValid() {
       return /^\d+\.?\d*$/.test(this.currentValue) &&
         parseFloat(this.currentValue) > 20 &&
-        parseFloat(this.currentValue) < 200 
+        parseFloat(this.currentValue) < 200
     }
   },
   methods: {
     goToCamera() {
       uni.navigateTo({
         url: '/pages/camera/camera'
-      }) 
+      })
     },
     goToWater() {
       uni.navigateTo({
         url: '/pages/water/water'
-      }) 
+      })
     },
     showWeightInput() {
       this.$nextTick(() => {
         if (this.$refs.weightPopup) {
-          this.$refs.weightPopup.open() 
+          this.$refs.weightPopup.open()
         }
-      }) 
+      })
     },
     popupChange(e) {
-      this.$emit('popup-change', e.show) 
+      this.$emit('popup-change', e.show)
     },
     closePopup() {
-      this.$refs.weightPopup.close() 
+      this.$refs.weightPopup.close()
     },
     inputNum(num) {
-      if (num === '.' && this.currentValue.includes('.')) return 
-      if (this.currentValue.length >= 5) return 
+      if (num === '.' && this.currentValue.includes('.')) return
+      if (this.currentValue.length >= 5) return
 
-      this.currentValue += num.toString() 
+      this.currentValue += num.toString()
       if (num === '.' && !this.currentValue.includes('.')) {
-        this.currentValue += '0' 
+        this.currentValue += '0'
       }
     },
     deleteNum() {
@@ -113,15 +119,20 @@ export default {
     },
     confirmWeight() {
       if (!this.isValid) {
-        uni.showToast({ title: '请输入有效体重', icon: 'none' }) 
-        return 
+        uni.showToast({ title: '请输入有效体重', icon: 'none' })
+        return
       }
 
-      const weight = parseFloat(this.currentValue) 
-      this.$emit('confirm-weight', weight)  
-      this.closePopup() 
+      const weight = parseFloat(this.currentValue)
+      this.$emit('confirm-weight', weight)
+      this.closePopup()
 
-      uni.showToast({ title: `成功记录: ${weight}kg`, icon: 'success' }) 
+      uni.showToast({ title: `成功记录: ${weight}kg`, icon: 'success' })
+    },
+    handleNumberConfirm({ field, value }) {
+      if (field === 'currentValue') {
+        this.currentValue = value + 'kg'
+      }
     }
   }
 }
@@ -163,24 +174,24 @@ export default {
 .custom-weight-popup {
   background: #fff;
   border-radius: 24rpx 24rpx 0 0;
-  padding: 20rpx; 
+  padding: 20rpx;
   height: auto;
-  max-height: 60vh; 
-  box-sizing: border-box; 
+  max-height: 60vh;
+  box-sizing: border-box;
 }
 
 .popup-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20rpx; 
+  margin-bottom: 20rpx;
 }
 
 .weight-display {
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  margin: 20rpx 0; 
+  margin: 20rpx 0;
 }
 
 .value {
@@ -190,7 +201,7 @@ export default {
 }
 
 .unit {
-  font-size: 28rpx; 
+  font-size: 28rpx;
   color: #999;
   margin-left: 10rpx;
   padding-bottom: 8rpx;
@@ -199,18 +210,18 @@ export default {
 .number-pad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16rpx; 
+  gap: 16rpx;
   margin-bottom: 20rpx;
 }
 
 .number-btn {
-  height: 80rpx; 
+  height: 80rpx;
   display: flex;
   justify-content: center;
   align-items: center;
   background: #f5f5f5;
   border-radius: 12rpx;
-  font-size: 36rpx; 
+  font-size: 36rpx;
 }
 
 .confirm-btn {
@@ -218,8 +229,8 @@ export default {
   color: white;
   border: none;
   border-radius: 50rpx;
-  height: 80rpx; 
-  font-size: 28rpx; 
+  height: 80rpx;
+  font-size: 28rpx;
   width: 100%;
 }
 

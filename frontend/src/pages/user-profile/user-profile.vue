@@ -37,7 +37,7 @@
         <text>个人信息设置</text>
         <uni-icons type="forward" size="14" color="#999"></uni-icons>
       </view>
-      <view class="list-item" @click="navTo('target')">
+      <!-- <view class="list-item" @click="navTo('target')">
         <uni-icons type="flag" size="18" color="#666"></uni-icons>
         <text>健康目标</text>
         <uni-icons type="forward" size="14" color="#999"></uni-icons>
@@ -46,7 +46,7 @@
         <uni-icons type="notification" size="18" color="#666"></uni-icons>
         <text>提醒设置</text>
         <uni-icons type="forward" size="14" color="#999"></uni-icons>
-      </view>
+      </view> -->
     </view>
 
     <!-- 退出登录 -->
@@ -117,9 +117,15 @@ export default {
 
 <style>
 .profile-container {
+  position: fixed; 
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   padding: 20rpx;
   background-color: #f5f5f5;
-  min-height: 100vh;
+  overflow-y: auto; 
+  z-index: 0; 
 }
 
 .profile-card {

@@ -59,7 +59,7 @@
 
 <script>
 import DatePicker from './components/DatePicker.vue';
-import NumberKeyboard from './components/NumberKeyboard.vue';
+import NumberKeyboard from '@/components/NumberKeyboard.vue'
 export default {
   components: {
     DatePicker,
