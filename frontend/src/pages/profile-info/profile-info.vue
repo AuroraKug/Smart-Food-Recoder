@@ -43,14 +43,14 @@
 
     <DatePicker ref="datePicker" :field="currentField" @save="handleDateSave" />
 
-    <NumberKeyboard ref="heightKeyboard" field="height" title="请输入身高" unit="cm" :max-length="250"
-      @confirm="handleNumberConfirm" />
+    <NumberKeyboard ref="heightKeyboard" field="height" title="请输入身高" unit="cm" :max-length="5" :range="[50, 250]"
+      :decimal-digits="1" @confirm="handleNumberConfirm" />
 
-    <NumberKeyboard ref="currentWeightKeyboard" field="currentWeight" title="请输入体重" unit="kg" :max-length="200"
-      @confirm="handleNumberConfirm" />
+    <NumberKeyboard ref="currentWeightKeyboard" field="currentWeight" title="请输入当前体重" unit="kg" :max-length="5"
+      :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" />
 
-    <NumberKeyboard ref="initialWeightKeyboard" field="initialWeight" title="请输入体重" unit="kg" :max-length="200"
-      @confirm="handleNumberConfirm" />
+    <NumberKeyboard ref="initialWeightKeyboard" field="initialWeight" title="请输入初始体重" unit="kg" :max-length="5"
+      :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" />
 
     <!-- 自定义数字键盘弹窗 -->
   </view>

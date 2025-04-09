@@ -12,20 +12,21 @@
 
       <!-- 数字显示区 -->
       <view class="number-display">
-        {{ currentValue || '请输入' }}
+        {{ displayValue }}
         <text v-if="currentValue" class="unit">{{ unit }}</text>
+        <text v-if="isOutOfRange" class="error-tip">超出有效范围</text>
       </view>
 
       <!-- 键盘主体 -->
       <view class="keyboard-body">
         <view class="number-grid">
-          <view v-for="num in 9" :key="num" class="number-btn" @click="handleInput(num)">
+          <view v-for="num in 9" :key="num" class="number-btn" @click="handleInput(num.toString())">
             {{ num }}
           </view>
           <view class="number-btn" :class="{ disabled: hasDecimal }" @click="handleDecimal">
             .
           </view>
-          <view class="number-btn" @click="handleInput(0)">
+          <view class="number-btn" @click="handleInput('0')">
             0
           </view>
           <view class="number-btn delete-btn" @click="handleDelete">
@@ -34,7 +35,7 @@
         </view>
       </view>
 
-      <button class="confirm-btn" :disabled="!currentValue" @click="handleConfirm">
+      <button class="confirm-btn" :disabled="!isValidValue || isOutOfRange" @click="handleConfirm">
         确定
       </button>
     </view>
@@ -44,21 +45,31 @@
 <script>
 export default {
   props: {
-    field: { // 用于区分不同输入项
+    field: {
       type: String,
       required: true
     },
-    title: { // 键盘标题
+    title: {
       type: String,
       default: '请输入数字'
     },
-    unit: { // 单位
+    unit: {
       type: String,
       default: ''
     },
-    maxLength: { // 最大输入位数
+    maxLength: {
       type: Number,
       default: 6
+    },
+    // 新增范围限制
+    range: {
+      type: Array,
+      default: () => [0, Infinity]
+    },
+    // 小数位数限制
+    decimalDigits: {
+      type: Number,
+      default: 2
     }
   },
   data() {
@@ -67,26 +78,77 @@ export default {
       currentValue: ''
     }
   },
+  computed: {
+    displayValue() {
+      return this.currentValue === '' ? '请输入' : this.currentValue
+    },
+    hasDecimal() {
+      return this.currentValue.includes('.')
+    },
+    isValidValue() {
+      // 验证：不能为空、不能以小数点开头、不能有多个小数点
+      return this.currentValue !== '' &&
+        !this.currentValue.startsWith('.') &&
+        (this.currentValue.match(/\./g) || []).length <= 1
+    },
+    isOutOfRange() {
+      if (!this.currentValue || !this.isValidValue) return false
+      const numValue = parseFloat(this.currentValue)
+      return numValue < this.range[0] || numValue > this.range[1]
+    }
+  },
   methods: {
-    // 打开键盘（供父组件调用）
     open(value = '') {
       this.currentValue = value.toString()
       this.showKeyboard = true
     },
 
-    handleInput(num) {
-      if (this.currentValue.length >= this.maxLength) return
-      this.currentValue += num.toString()
+    handleInput(char) {
+      // 处理数字输入
+      const parts = this.currentValue.split('.')
+
+      // 整数部分限制
+      if (!this.hasDecimal) {
+        if (parts[0].length >= this.maxLength) return
+        // 防止前导零（0后面只能跟小数点）
+        if (parts[0] === '0' && char !== '.') return
+      }
+      // 小数部分限制
+      else {
+        if (parts[1].length >= this.decimalDigits) return
+      }
+
+      this.currentValue += char
+    },
+
+    // 新增小数点处理方法
+    handleDecimal() {
+      if (this.currentValue === '') {
+        this.currentValue = '0.'
+      } else if (!this.hasDecimal) {
+        this.currentValue += '.'
+      }
     },
 
     handleDelete() {
-      this.currentValue = this.currentValue.slice(0, -1)
+      if (this.currentValue.length > 0) {
+        this.currentValue = this.currentValue.slice(0, -1)
+      }
     },
 
     handleConfirm() {
+      // 格式化最终值（如 ".5" → "0.5"）
+      let finalValue = this.currentValue
+      if (finalValue.startsWith('.')) {
+        finalValue = '0' + finalValue
+      } else if (finalValue.endsWith('.')) {
+        finalValue = finalValue.slice(0, -1)
+      }
+
       this.$emit('confirm', {
         field: this.field,
-        value: this.currentValue
+        value: finalValue,
+        numericValue: parseFloat(finalValue)
       })
       this.showKeyboard = false
     },
@@ -100,7 +162,6 @@ export default {
 </script>
 
 <style scoped>
-/* 复用日期选择器的遮罩样式 */
 .mask {
   position: fixed;
   top: 0;
@@ -147,12 +208,21 @@ export default {
   font-size: 28px;
   color: #333;
   padding: 10px 0;
+  position: relative;
 }
 
 .unit {
   font-size: 14px;
   color: #999;
   margin-left: 5px;
+}
+
+.error-tip {
+  position: absolute;
+  right: 20px;
+  bottom: 5px;
+  font-size: 12px;
+  color: #ff0000;
 }
 
 .keyboard-body {
@@ -179,12 +249,13 @@ export default {
   background: #e0e0e0;
 }
 
-.delete-btn {
-  font-size: 28px;
+.number-btn.disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
-.placeholder {
-  visibility: hidden;
+.delete-btn {
+  font-size: 28px;
 }
 
 .confirm-btn {
