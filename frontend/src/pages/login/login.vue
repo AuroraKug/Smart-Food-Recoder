@@ -15,73 +15,96 @@
 <script>
 export default {
   methods: {
-    login() {
-      uni.login({
-        provider: 'weixin',
-        success: (res) => {
-          console.log('登录成功, code: ', res.code);
-          uni.switchTab({
-            url: '/pages/home/home',
-          })
-        },
-        fail: (err) => {
-          console.error('登录失败: ', err)
+    // login() {
+    //   uni.login({
+    //     provider: 'weixin',
+    //     success: (res) => {
+    //       console.log('登录成功, code: ', res.code);
+    //       uni.switchTab({
+    //         url:'/pages/home/home',
+    //       })
+    //     },
+    //     fail: (err) => {
+    //       console.error('登录失败: ', err)
+    //       uni.showToast({
+    //         title: '登录失败'
+    //       })
+    //     }
+    //   })
+    // }
+    async login() {
+      try {
+        const loginRes = await new Promise((resolve, reject) => {
+          uni.login({
+            provider: 'weixin',
+            success: resolve,
+            fail: reject
+          });
+        });
+
+        console.log('微信code:', loginRes.code);
+
+        // 用 Promise 包装 uni.request，解决不能 await 的问题
+        const response = await new Promise((resolve, reject) => {
+          uni.request({
+            url: 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.com/api/auth/login',
+            method: 'POST',
+            data: {
+              code: loginRes.code
+            },
+            header: {
+              'Content-Type': 'application/json'
+            },
+            success: (res) => resolve(res),
+            fail: (err) => reject(err)
+          });
+        });
+
+        if (response.statusCode === 200) {
+          const { token, userInfo } = response.data;
+
+          uni.setStorageSync('token', token);
+          uni.setStorageSync('userInfo', userInfo);
+
           uni.showToast({
-            title: '登录失败'
-          })
+            title: '登录成功'
+          });
+
+          uni.switchTab({
+            url: '/pages/home/home'
+          });
+        } else {
+          throw new Error(response.data.message || '登录失败');
         }
-      })
+      } catch (err) {
+        console.error('登录出错:', err);
+        uni.showToast({
+          title: err.message || '登录失败',
+          icon: 'none'
+        });
+      }
     }
   }
-  // async login() {
-  //   try {
-  //     // 1. 获取微信 code（注意：uni.login() 返回的是对象，不是数组）
-  //     const loginRes = await uni.login({
-  //       provider: 'weixin'
-  //     });
-  //     console.log('微信code:', loginRes.code); // 正确访问 code
-
-  //     // 2. 发送 code 到后端
-  //     const [err, res] = await uni.request({
-  //       url: 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.com/api/auth/login',
-  //       method: 'POST',
-  //       data: {
-  //         code: loginRes.code
-  //       },
-  //       header: {
-  //         'Content-Type': 'application/json'
-  //       }
-  //     });
-
-  //     // 3. 处理错误
-  //     if (err) {
-  //       throw new Error(err.errMsg || '请求失败');
-  //     }
-
-  //     // 4. 处理后端响应
-  //     if (res.statusCode === 200) {
-  //       const { token, userInfo } = res.data;
-
-  //       // 存储 Token
-  //       uni.setStorageSync('token', token);
-
-  //       // 跳转到首页
-  //       uni.switchTab({
-  //         url: '/pages/home/home'
-  //       });
-  //     } else {
-  //       throw new Error(res.data.message || '登录失败');
-  //     }
-  //   } catch (err) {
-  //     console.error('登录出错:', err);
-  //     uni.showToast({
-  //       title: err.message || '登录失败',
-  //       icon: 'none'
-  //     });
-  //   }
-  // }
 }
-
+// methods: {
+//   login() {
+//     uni.login({
+//       provider: 'weixin',
+//       success: (res) => {
+//         console.log('登录成功, code: ', res.code);
+//         uni.switchTab({
+//           url: '/pages/home/home',
+//         })
+//       },
+//       fail: (err) => {
+//         console.error('登录失败: ', err)
+//         uni.showToast({
+//           title: '登录失败'
+//         })
+//       }
+//     })
+//   }
+// }
 </script>
 
 <style scoped>
