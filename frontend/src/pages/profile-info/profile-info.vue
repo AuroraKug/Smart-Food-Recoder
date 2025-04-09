@@ -11,12 +11,12 @@
         <text class="value">{{ profileData.birthdate }}</text>
         <uni-icons type="forward" size="16" color="#999"></uni-icons>
       </view>
-      <view class="profile-item" @tap="editField('height')">
+      <view class="profile-item" @click="$refs.heightKeyboard.open(profileData.height)">
         <text class="label">身高</text>
         <text class="value">{{ profileData.height }}</text>
         <uni-icons type="forward" size="16" color="#999"></uni-icons>
       </view>
-      <view class="profile-item" @tap="editField('currentWeight')">
+      <view class="profile-item" @click="$refs.currentWeightKeyboard.open(profileData.currentWeight)">
         <text class="label">当前体重</text>
         <text class="value">{{ profileData.currentWeight }}</text>
         <uni-icons type="forward" size="16" color="#999"></uni-icons>
@@ -24,7 +24,7 @@
     </view>
 
     <view class="profile-block">
-      <view class="profile-item" @tap="editField('initialWeight')">
+      <view class="profile-item" @click="$refs.initialWeightKeyboard.open(profileData.initialWeight)">
         <text class="label">初始体重</text>
         <text class="value">{{ profileData.initialWeight }}</text>
         <uni-icons type="forward" size="16" color="#999"></uni-icons>
@@ -41,79 +41,38 @@
       <button class="save-button" @tap="saveProfile">保存</button>
     </view>
 
-    <!-- 自定义日期选择弹窗 -->
-    <!-- <view class="modal" v-if="showDatePicker">
-      <view class="modal-content">
-        <view class="modal-header">
-          <text>{{ editTitle }}</text>
-          <uni-icons type="close" size="24" color="#666" @tap="closeDatePicker"></uni-icons>
-        </view>
-        <picker mode="multiSelector" :range="dateRange" :value="dateValue" @change="onDateChange">
-          <view class="picker-view">
-            {{ dateRange[0][dateValue[0]] }}-{{ dateRange[1][dateValue[1]] }}-{{ dateRange[2][dateValue[2]] }}
-          </view>
-        </picker>
-        <button class="save-btn" @tap="saveDate">保存</button>
-      </view>
-    </view> -->
-    <DatePicker
-      ref="datePicker"
-      :field="currentField"
-      @save="handleDateSave"
-    />
+    <DatePicker ref="datePicker" :field="currentField" @save="handleDateSave" />
 
-    
+    <NumberKeyboard ref="heightKeyboard" field="height" title="请输入身高" unit="cm" :max-length="250"
+      @confirm="handleNumberConfirm" />
+
+    <NumberKeyboard ref="currentWeightKeyboard" field="currentWeight" title="请输入体重" unit="kg" :max-length="200"
+      @confirm="handleNumberConfirm" />
+
+    <NumberKeyboard ref="initialWeightKeyboard" field="initialWeight" title="请输入体重" unit="kg" :max-length="200"
+      @confirm="handleNumberConfirm" />
 
     <!-- 自定义数字键盘弹窗 -->
-    <view class="modal" v-if="showNumberPad" animation="{{ numberPadAnimation }}">
-      <view class="modal-content">
-        <view class="modal-header">
-          <text>{{ editTitle }}</text>
-          <uni-icons type="close" size="24" color="#666" @tap="closeNumberPad"></uni-icons>
-        </view>
-        <view class="modal-input">
-          <text>{{ inputValue }}</text>
-        </view>
-        <view class="number-pad">
-          <view class="number-row">
-            <button class="number-btn" @tap="appendNumber('1')">1</button>
-            <button class="number-btn" @tap="appendNumber('2')">2</button>
-            <button class="number-btn" @tap="appendNumber('3')">3</button>
-            <button class="number-btn" @tap="appendNumber('4')">4</button>
-          </view>
-          <view class="number-row">
-            <button class="number-btn" @tap="appendNumber('5')">5</button>
-            <button class="number-btn" @tap="appendNumber('6')">6</button>
-            <button class="number-btn" @tap="appendNumber('7')">7</button>
-            <button class="number-btn" @tap="appendNumber('8')">8</button>
-          </view>
-          <view class="number-row">
-            <button class="number-btn" @tap="appendNumber('9')">9</button>
-            <button class="number-btn" @tap="appendNumber('0')">0</button>
-            <button class="number-btn" @tap="appendNumber('.')">.</button>
-            <button class="number-btn" @tap="deleteNumber">←</button>
-          </view>
-        </view>
-        <button class="save-btn" @tap="saveNumber">保存</button>
-      </view>
-    </view>
   </view>
+
 </template>
 
 <script>
 import DatePicker from './components/DatePicker.vue';
+import NumberKeyboard from './components/NumberKeyboard.vue';
 export default {
   components: {
-    DatePicker
+    DatePicker,
+    NumberKeyboard
   },
   data() {
     return {
       profileData: {
         gender: '男',
         birthdate: '2005-10-26',
-        height: '180 厘米',
-        currentWeight: '66.4 公斤',
-        initialWeight: '70.6 公斤',
+        height: '',
+        currentWeight: '',
+        initialWeight: '',
         initialDate: '2024-08-29'
       },
       showDatePicker: false,
@@ -237,11 +196,20 @@ export default {
       this.currentField = field
       this.$refs.datePicker.showPicker = true
     },
-    handleDateSave({field, date}) {
+    handleDateSave({ field, date }) {
       if (field === 'birth') {
         this.profileData.birthdate = date
       } else if (field === 'initial') {
         this.profileData.initialDate = date
+      }
+    },
+    handleNumberConfirm({ field, value }) {
+      if (field === 'height') {
+        this.profileData.height = value + 'cm'
+      } else if (field === 'currentWeight') {
+        this.profileData.currentWeight = value + 'kg'
+      } else if (field === 'initialWeight') {
+        this.profileData.initialWeight = value + 'kg'
       }
     }
   }
