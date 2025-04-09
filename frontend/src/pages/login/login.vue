@@ -4,7 +4,7 @@
       <image src="/static/logo.png" class="logo"></image>
       <text class="welcome-text">欢迎使用智食记录</text>
 
-      <button class="wechat-login-btn" @click="goToHome">
+      <button class="wechat-login-btn" @click="login">
         <uni-icons type="weixin" size="24" color="#fff"></uni-icons>
         <text>微信一键登录</text>
       </button>
@@ -15,9 +15,18 @@
 <script>
 export default {
   methods: {
-    goToHome() {
-      uni.switchTab({
-        url: '/pages/home/home'
+    login() {
+      uni.login({
+        provider: 'weixin',
+        success: (res) => {
+          console.log('登录成功, code: ', res.code);
+        },
+        fail: (err) => {
+          console.error('登录失败: ', err)
+          uni.showToast({
+            title: '登录失败'
+          })
+        }
       })
     }
   }
