@@ -79,7 +79,7 @@ export default {
   background-color: #ffffff;
   border-radius: 12rpx;
   margin: 0 auto 20rpx;
-  box-shadow: 0rpx 4rpx 8rpx 2rpx #cccccc;
+  box-shadow: 0rpx 2rpx 8rpx 2rpx #cccccc;
   overflow: hidden;
 }
 

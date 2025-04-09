@@ -75,15 +75,21 @@
 		"list": [
 			{
 				"pagePath": "pages/home/home",
-				"text": "首页"
+				"text": "首页",
+				"iconPath": "./static/home.png",
+				"selectedIconPath": "./static/home-selected.png"
 			},
 			{
 				"pagePath": "pages/food-list/food-list",
-				"text": "食物"
+				"text": "食物",
+				"iconPath": "./static/food.png",
+				"selectedIconPath": "./static/food-selected.png"
 			},
 			{
 				"pagePath": "pages/user-profile/user-profile",
-				"text": "我的"
+				"text": "我的",
+				"iconPath": "./static/user.png",
+				"selectedIconPath": "./static/user-selected.png"
 			}
 		]
 	}

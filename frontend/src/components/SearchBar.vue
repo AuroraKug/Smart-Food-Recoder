@@ -1,7 +1,7 @@
 <template>
   <view class="search-container">
     <view class="search-box">
-      <uni-icons type="search" size="18" color="#999" class="search-icon"></uni-icons>
+      <uni-icons type="search" size="26" color="#999" class="search-icon"></uni-icons>
       <input 
         class="search-input" 
         placeholder="请输入搜索内容" 
