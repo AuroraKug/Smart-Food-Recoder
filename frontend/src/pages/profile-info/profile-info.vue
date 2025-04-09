@@ -6,7 +6,7 @@
         <text class="value">{{ profileData.gender }}</text>
         <uni-icons type="forward" size="16" color="#999"></uni-icons>
       </view>
-      <view class="profile-item" @tap="editField('birthdate')">
+      <view class="profile-item" @click="openPicker('birth')">
         <text class="label">生日</text>
         <text class="value">{{ profileData.birthdate }}</text>
         <uni-icons type="forward" size="16" color="#999"></uni-icons>
@@ -29,7 +29,7 @@
         <text class="value">{{ profileData.initialWeight }}</text>
         <uni-icons type="forward" size="16" color="#999"></uni-icons>
       </view>
-      <view class="profile-item" @tap="editField('initialDate')">
+      <view class="profile-item" @click="openPicker('initial')">
         <text class="label">初始日期</text>
         <text class="value">{{ profileData.initialDate }}</text>
         <uni-icons type="forward" size="16" color="#999"></uni-icons>
@@ -56,22 +56,13 @@
         <button class="save-btn" @tap="saveDate">保存</button>
       </view>
     </view> -->
-    <view class="modal-mask" v-if="showDatePicker" @tap="closeDatePicker"></view>
-    <view class="modal date-modal" :class="{ show: showDatePicker }">
-      <view class="modal-content">
-        <view class="modal-header">
-          <text class="modal-title">{{ editTitle }}</text>
-          <uni-icons type="close" size="24" color="#666" @tap="closeDatePicker"></uni-icons>
-        </view>
-        <picker mode="date" :value="currentDate" fields="year-month-day" start="1900-01-01" :end="maxDate"
-          @change="onDateChange">
-          <view class="picker-container">
-            <text class="selected-date">{{ currentDate }}</text>
-          </view>
-        </picker>
-        <button class="save-btn" @tap="saveDate">保存</button>
-      </view>
-    </view>
+    <DatePicker
+      ref="datePicker"
+      :field="currentField"
+      @save="handleDateSave"
+    />
+
+    
 
     <!-- 自定义数字键盘弹窗 -->
     <view class="modal" v-if="showNumberPad" animation="{{ numberPadAnimation }}">
@@ -110,7 +101,11 @@
 </template>
 
 <script>
+import DatePicker from './components/DatePicker.vue';
 export default {
+  components: {
+    DatePicker
+  },
   data() {
     return {
       profileData: {
@@ -131,8 +126,7 @@ export default {
       dateRange: [[], [], []], // 年、月、日范围
       dateValue: [0, 0, 0], // 当前选中的年、月、日索引
       numberPadAnimation: '',
-      currentDate: '', // 新增当前日期存储
-      maxDate: this.$dayjs().format('YYYY-MM-DD') // 使用dayjs获取最大日期
+      currentField: ''
     };
   },
   onLoad() {
@@ -238,6 +232,17 @@ export default {
     saveProfile() {
       console.log('保存数据:', this.profileData);
       uni.showToast({ title: '保存成功', icon: 'success', duration: 2000 });
+    },
+    openPicker(field) {
+      this.currentField = field
+      this.$refs.datePicker.showPicker = true
+    },
+    handleDateSave({field, date}) {
+      if (field === 'birth') {
+        this.profileData.birthdate = date
+      } else if (field === 'initial') {
+        this.profileData.initialDate = date
+      }
     }
   }
 };
