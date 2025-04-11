@@ -61,10 +61,10 @@ export default {
         });
 
         if (response.statusCode === 200) {
-          const { token, userInfo } = response.data;
+          const { token, openid } = response.data;
 
           uni.setStorageSync('token', token);
-          uni.setStorageSync('userInfo', userInfo);
+          uni.setStorageSync('userInfo', openid);
 
           uni.showToast({
             title: '登录成功'

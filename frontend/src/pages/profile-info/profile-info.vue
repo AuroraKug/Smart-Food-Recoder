@@ -94,13 +94,45 @@ export default {
   },
   onLoad() {
     this.initDateRange();
+    this.fetchUserInfo();
   },
   methods: {
-    async updateUserInfo() {
+    async fetchUserInfo() {
       try {
         const response = await new Promise((resolve, reject) => {
           uni.request({
             url: BASE_URL + '/api/user/info',
+            method: 'POST',
+            header: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + uni.getStorageSync('token')
+            },
+            success: (res) => resolve(res),
+            fail: (err) => reject(err)
+          })
+        })
+
+        if (response.statusCode === 200) {
+          // 假设后端返回的数据结构是 { username, gender, birthday }
+          const userInfo = response.data;
+
+          this.profileData.username = userInfo.nickName || '未命名用户';
+          this.profileData.gender = userInfo.gender || '未知';
+          this.profileData.birthdate = userInfo.birthday || '2000-01-01';
+
+          console.log('获取用户信息成功', userInfo);
+        } else {
+          console.error('获取用户信息失败', response);
+        }
+      } catch (err) {
+        console.error('请求用户信息失败：', err);
+      }
+    },
+    async updateUserInfo() {
+      try {
+        const response = await new Promise((resolve, reject) => {
+          uni.request({
+            url: BASE_URL + '/api/user/update',
             method: 'POST',
             data: {
               nickName: this.profileData.username,
@@ -108,16 +140,18 @@ export default {
               gender: this.profileData.gender
             },
             header: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + uni.getStorageSync('token')  // ✅ 加上这行
             },
             success: (res) => resolve(res),
             fail: (err) => reject(err)
           })
         })
 
-        
-      } catch (error) {
-        console.log(error)
+        console.log('更新成功：', response.data)
+        await this.fetchUserInfo(); // ✅ 自动刷新页面数据
+      } catch (err) {
+        console.error('更新失败：', err)
       }
     },
     // 初始化日期范围
