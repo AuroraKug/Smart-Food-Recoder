@@ -60,6 +60,9 @@
 <script>
 import DatePicker from './components/DatePicker.vue';
 import NumberKeyboard from '@/components/NumberKeyboard.vue'
+
+const BASE_URL = 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.com'
+
 export default {
   components: {
     DatePicker,
@@ -68,6 +71,7 @@ export default {
   data() {
     return {
       profileData: {
+        username: 'Name',
         gender: '男',
         birthdate: '2005-10-26',
         height: '',
@@ -92,6 +96,30 @@ export default {
     this.initDateRange();
   },
   methods: {
+    async updateUserInfo() {
+      try {
+        const response = await new Promise((resolve, reject) => {
+          uni.request({
+            url: BASE_URL + '/api/user/info',
+            method: 'POST',
+            data: {
+              nickName: this.profileData.username,
+              birthday: this.profileData.birthdate,
+              gender: this.profileData.gender
+            },
+            header: {
+              'Content-Type': 'application/json'
+            },
+            success: (res) => resolve(res),
+            fail: (err) => reject(err)
+          })
+        })
+
+        
+      } catch (error) {
+        console.log(error)
+      }
+    },
     // 初始化日期范围
     initDateRange() {
       const years = [];
@@ -116,34 +144,6 @@ export default {
               }
             }
           });
-          break;
-        case 'birthdate':
-        case 'initialDate':
-          this.editTitle = field === 'birthdate' ? '编辑生日' : '编辑初始日期';
-          const dateParts = this.profileData[field].split('-');
-          this.dateValue = [
-            this.dateRange[0].indexOf(parseInt(dateParts[0])),
-            this.dateRange[1].indexOf(dateParts[1]),
-            this.dateRange[2].indexOf(dateParts[2])
-          ];
-          this.showDatePicker = true;
-          break;
-        case 'height':
-          this.editTitle = '编辑身高';
-          this.inputValue = this.profileData.height.replace(' 厘米', '');
-          this.minValue = 100;
-          this.maxValue = 250;
-          this.showNumberPad = true;
-          this.animateNumberPad(true);
-          break;
-        case 'currentWeight':
-        case 'initialWeight':
-          this.editTitle = field === 'currentWeight' ? '编辑当前体重' : '编辑初始体重';
-          this.inputValue = this.profileData[field].replace(' 公斤', '');
-          this.minValue = 25;
-          this.maxValue = 200;
-          this.showNumberPad = true;
-          this.animateNumberPad(true);
           break;
       }
     },
@@ -191,6 +191,7 @@ export default {
     saveProfile() {
       console.log('保存数据:', this.profileData);
       uni.showToast({ title: '保存成功', icon: 'success', duration: 2000 });
+      this.updateUserInfo()
     },
     openPicker(field) {
       this.currentField = field
