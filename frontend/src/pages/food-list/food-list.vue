@@ -1,9 +1,8 @@
 <template>
   <view class="container">
-    <SearchBar />
     <view class="food-list-container">
-      <view class="food-list-title">食物列表</view>
-      <view class="food-item" v-for="(food, index) in foodList" :key="index">
+      <view class="food-list-title">{{ searchKeyword ? '搜索结果' : '食物列表' }}</view>
+      <view class="food-item" v-for="(food, index) in foodList" :key="index" @click="selectFood(food)">
         <image :src="food.image" class="food-image" mode="widthFix"></image>
         <view class="food-info">
           <text class="food-name">{{ food.name }}</text>
@@ -15,40 +14,55 @@
 </template>
 
 <script>
-import SearchBar from '@/components/SearchBar.vue'
+const BASE_URL = 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.com'
+
 export default {
-  components: {
-    SearchBar
-  },
   data() {
     return {
-      foodList: [
-        {
-          name: '黑咖啡',
-          calories: 1,
-          image: '/static/logo.png' // 替换为实际的咖啡图片路径
-        },
-        {
-          name: '苹果',
-          calories: 52,
-          image: '/static/logo.png' // 替换为实际的食物图片路径
-        },
-        {
-          name: '香蕉',
-          calories: 90,
-          image: '/static/logo.png' // 替换为实际的食物图片路径
-        },
-        {
-          name: '鸡蛋',
-          calories: 68,
-          image: '/static/logo.png' // 替换为实际的食物图片路径
-        },
-        {
-          name: '面包',
-          calories: 265,
-          image: '/static/logo.png' // 替换为实际的食物图片路径
+      foodList: [],
+      searchKeyword: ''
+    }
+  },
+  onLoad(options) {
+    // 获取URL参数中的搜索关键词
+    if (options.keyword) {
+      this.searchKeyword = decodeURIComponent(options.keyword)
+      this.handleSearch(this.searchKeyword)
+    }
+  },
+  methods: {
+    async handleSearch(keyword) {
+      try {
+        const response = await new Promise((resolve, reject) => {
+          uni.request({
+            url: BASE_URL + '/api/food/search',
+            method: 'GET',
+            data: {
+              keyword: keyword
+            },
+            header: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + uni.getStorageSync('token')
+            },
+            success: (res) => resolve(res),
+            fail: (err) => reject(err)
+          })
+        })
+
+        if (response.statusCode === 200) {
+          this.foodList = response.data
         }
-      ]
+      } catch (err) {
+        console.error('搜索失败：', err)
+        uni.showToast({
+          title: '搜索失败',
+          icon: 'none'
+        })
+      }
+    },
+    selectFood(food) {
+      // 触发选择食物事件，供父组件使用
+      this.$emit('select', food)
     }
   }
 }

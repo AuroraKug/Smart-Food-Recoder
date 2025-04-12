@@ -10,10 +10,10 @@
         <uni-icons type="scale" size="20"></uni-icons>
         <text>记录体重</text>
       </view>
-      <view class="action-item" @click="goToWater">
+      <!-- <view class="action-item" @click="goToWater">
         <uni-icons type="water" size="20"></uni-icons>
         <text>喝水打卡</text>
-      </view>
+      </view> -->
     </view>
 
     <!-- <uni-popup ref="weightPopup" type="bottom" @change="popupChange">

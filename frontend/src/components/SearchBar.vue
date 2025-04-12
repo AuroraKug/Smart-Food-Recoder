@@ -16,19 +16,34 @@
 
     <view class="suggestion-list" v-if="showSuggestions && searchText">
       <view class="suggestion-item" v-for="(item, index) in suggestions" :key="index" @click="selectSuggestion(item)">
-        {{ item }}
+        <text class="suggestion-name">{{ item.name }}</text>
+        <text class="suggestion-calories">{{ item.calories }}卡/100克</text>
       </view>
     </view>
   </view>
 </template>
 
 <script>
+const BASE_URL = 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.com'
+
 export default {
+  props: {
+    initialKeyword: {
+      type: String,
+      default: ''
+    }
+  },
   data() {
     return {
-      searchText: '',
+      searchText: this.initialKeyword,
       showSuggestions: false,
-      suggestions: []
+      suggestions: [],
+      searchTimer: null
+    }
+  },
+  watch: {
+    initialKeyword(newVal) {
+      this.searchText = newVal
     }
   },
   methods: {
@@ -38,23 +53,64 @@ export default {
       })
     },
     handleInput() {
-      if (this.searchText) {
-        this.showSuggestions = true
-        this.suggestions = ['苹果', '香蕉', '鸡蛋', '面包'].filter(item =>
-          item.includes(this.searchText)
-        )
-      } else {
-        this.showSuggestions = false
-        this.suggestions = []
+      // 清除之前的定时器
+      if (this.searchTimer) {
+        clearTimeout(this.searchTimer)
       }
+      
+      // 设置新的定时器，实现防抖
+      this.searchTimer = setTimeout(async () => {
+        if (this.searchText) {
+          try {
+            const response = await new Promise((resolve, reject) => {
+              uni.request({
+                url: BASE_URL + '/api/food/search',
+                method: 'GET',
+                data: {
+                  keyword: this.searchText
+                },
+                header: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer ' + uni.getStorageSync('token')
+                },
+                success: (res) => resolve(res),
+                fail: (err) => reject(err)
+              })
+            })
+
+            if (response.statusCode === 200) {
+              this.suggestions = response.data
+              this.showSuggestions = true
+            }
+          } catch (err) {
+            console.error('搜索失败：', err)
+            this.suggestions = []
+            this.showSuggestions = false
+          }
+        } else {
+          this.showSuggestions = false
+          this.suggestions = []
+        }
+      }, 300) // 300ms 的防抖延迟
     },
     selectSuggestion(item) {
-      this.searchText = item
+      this.searchText = item.name
       this.showSuggestions = false
+      // 触发选择事件，将选中的食物传递给父组件
+      this.$emit('select', item)
     },
     performSearch() {
-      console.log('搜索:', this.searchText)
-      this.showSuggestions = false
+      if (this.searchText) {
+        // 跳转到食物列表页面，并传递搜索关键词
+        uni.navigateTo({
+          url: `/pages/food-list/food-list?keyword=${encodeURIComponent(this.searchText)}`,
+          success: () => {
+            // 清空搜索框
+            this.searchText = ''
+            this.showSuggestions = false
+          }
+        })
+      }
     }
   }
 }
@@ -130,6 +186,19 @@ export default {
   font-size: 28rpx;
   color: #333;
   border-bottom: 1rpx solid #cccccc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.suggestion-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.suggestion-calories {
+  font-size: 24rpx;
+  color: #999;
 }
 
 .suggestion-item:last-child {

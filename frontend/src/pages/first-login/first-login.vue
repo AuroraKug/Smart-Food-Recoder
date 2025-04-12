@@ -180,9 +180,10 @@ export default {
             url: BASE_URL + '/api/user/update',
             method: 'POST',
             data: {
-              nickName: this.userInfo.username,
-              birthday: this.userInfo.birthdate,
-              gender: this.userInfo.gender
+              userName: this.userInfo.username,
+              birthdate: this.userInfo.birthdate,
+              gender: this.userInfo.gender,
+              height: this.userInfo.height
             },
             header: {
               'Content-Type': 'application/json',
