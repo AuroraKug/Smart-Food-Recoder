@@ -43,7 +43,7 @@
         </view>
       </view>
 
-      <!-- 其他可能结果 -->
+      <!-- 其他可能结果
       <text class="title-font" v-if="otherResults.length > 0 && mainResult && mainResult.name !== '非菜'">其他可能结果</text>
       <view class="other-results" v-if="otherResults.length > 0 && mainResult && mainResult.name !== '非菜'">
         <view class="other-result-item" v-for="(item, index) in otherResults" :key="index">
@@ -51,7 +51,18 @@
           <text class="other-food-calories">{{ item.calorie }}卡/100克</text>
           <text class="other-probability">{{ (item.probability * 100).toFixed(2) }}%</text>
         </view>
+      </view> -->
+      <text class="title-font" v-if="otherResults.length > 0 && mainResult && mainResult.name !== '非菜'">其他可能结果</text>
+      <view class="other-results" v-if="otherResults.length > 0 && mainResult && mainResult.name !== '非菜'">
+        <view class="other-result-item" v-for="(item, index) in otherResults" :key="index">
+          <view class="result-row">
+            <text class="other-food-name">{{ item.name }}</text>
+            <text class="other-food-calories">{{ item.calorie }}卡/100克</text>
+            <text class="other-probability">{{ (item.probability * 100).toFixed(2) }}%</text>
+          </view>
+        </view>
       </view>
+
 
       <!-- 非菜提示 -->
       <view class="non-food-warning" v-if="mainResult && mainResult.name === '非菜'">
@@ -115,7 +126,7 @@ export default {
       }
     },
     getProgressColor(percent) {
-      const hue = (1 - percent / 100) * 120
+      const hue = percent * 120 / 100
       return `hsl(${hue}, 100%, 50%)`
     },
     async identifyFood() {
@@ -142,12 +153,12 @@ export default {
             
             // 过滤其他结果（概率大于10%）
             this.otherResults = data.result.slice(1).filter(item => 
-              parseFloat(item.probability) > 0.1
+              parseFloat(item.probability) > 0.05
             )
             
             // 检查是否有低概率结果
             this.hasLowProbability = data.result.some(item => 
-              parseFloat(item.probability) <= 0.1
+              parseFloat(item.probability) <= 0.05
             )
           }
         }
@@ -331,32 +342,40 @@ export default {
   margin-bottom: 20rpx;
 }
 
-.other-result-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15rpx 0;
-  border-bottom: 1rpx solid #eeeeee;
-}
-
 .other-result-item:last-child {
   border-bottom: none;
 }
 
+.result-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #eeeeee;
+}
+
 .other-food-name {
+  flex: 2;
   font-size: 28rpx;
   color: #333333;
+  text-align: left;
 }
 
 .other-food-calories {
+  flex: 3;
   font-size: 24rpx;
   color: #666666;
+  text-align: center;
 }
 
 .other-probability {
+  flex: 2;
   font-size: 24rpx;
   color: #999999;
+  text-align: right;
 }
+
 
 .non-food-warning {
   background-color: #fff3f3;
