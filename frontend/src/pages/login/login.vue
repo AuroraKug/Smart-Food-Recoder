@@ -44,7 +44,7 @@ export default {
         });
 
         if (response.statusCode === 200) {
-          const { token, openid } = response.data;
+          const {token, openid ,if_first_login} = response.data;
 
           uni.setStorageSync('token', token);
           uni.setStorageSync('userInfo', openid);
@@ -56,9 +56,21 @@ export default {
           // uni.switchTab({
           //   url: '/pages/home/home'
           // });
-          uni.navigateTo({
-            url: '/pages/first-login/first-login'
-          });
+          // uni.navigateTo({
+          //   url: '/pages/first-login/first-login'
+          // });
+          if (if_first_login === true) {
+    // 首次登录，跳转到首次信息填写页
+            uni.navigateTo({
+              url: '/pages/first-login/first-login'
+            });
+          } else {
+            // 非首次登录，跳转到首页
+            uni.switchTab({
+              url: '/pages/home/home'
+            });
+          }
+
         } else {
           throw new Error(response.data.message || '登录失败');
         }

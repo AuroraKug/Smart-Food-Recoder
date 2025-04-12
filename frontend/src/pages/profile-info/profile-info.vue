@@ -74,7 +74,7 @@ export default {
         username: 'Name',
         gender: '男',
         birthdate: '2005-10-26',
-        height: '',
+        height: '170',
         currentWeight: '',
         initialWeight: '',
         initialDate: '2024-08-29'
@@ -102,7 +102,7 @@ export default {
         const response = await new Promise((resolve, reject) => {
           uni.request({
             url: BASE_URL + '/api/user/info',
-            method: 'POST',
+            method: 'GET',
             header: {
               'Content-Type': 'application/json',
               'Authorization': 'Bearer ' + uni.getStorageSync('token')
@@ -116,9 +116,10 @@ export default {
           // 假设后端返回的数据结构是 { username, gender, birthday }
           const userInfo = response.data;
 
-          this.profileData.username = userInfo.nickName || '未命名用户';
+          this.profileData.username = userInfo.userName || '未命名用户';
           this.profileData.gender = userInfo.gender || '未知';
-          this.profileData.birthdate = userInfo.birthday || '2000-01-01';
+          this.profileData.birthdate = userInfo.birthdate || '2000-01-01';
+          this.profileData.height = userInfo.height || '未设置';
 
           console.log('获取用户信息成功', userInfo);
         } else {
@@ -135,9 +136,10 @@ export default {
             url: BASE_URL + '/api/user/update',
             method: 'POST',
             data: {
-              nickName: this.profileData.username,
-              birthday: this.profileData.birthdate,
-              gender: this.profileData.gender
+              userName: this.profileData.username,
+              birthdate: this.profileData.birthdate,
+              gender: this.profileData.gender,
+              height: this.profileData.height,
             },
             header: {
               'Content-Type': 'application/json',
