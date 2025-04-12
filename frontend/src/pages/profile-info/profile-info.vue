@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import DatePicker from './components/DatePicker.vue';
+import DatePicker from '@/components/DatePicker.vue';
 import NumberKeyboard from '@/components/NumberKeyboard.vue'
 
 const BASE_URL = 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.com'

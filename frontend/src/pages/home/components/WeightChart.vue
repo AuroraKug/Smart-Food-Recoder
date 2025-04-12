@@ -20,6 +20,7 @@
 </template>
 
 <script>
+const BASE_URL = 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.com'
 export default {
   data() {
     return {
@@ -44,6 +45,32 @@ export default {
     }
   },
   methods: {
+    async getWeightData() {
+      try {
+        const weightResponse = await new Promise((resolve, reject) => {
+          uni.request({
+            url: BASE_URL + '/api/weight/goal/getGoal',
+            method: 'GET',
+            header: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + uni.getStorageSync('token')
+            },
+            success: (res) => resolve(res),
+            fail: (err) => reject(err)
+          })
+        })
+        this.initialWeight = weightResponse.data.startWeight
+        this.currentWeight = weightResponse.data.currentWeight
+        this.targetWeight = weightResponse.data.targetWeight
+        this.weightData = [
+          { label: '初始体重', value: this.initialWeight },
+          { label: '当前体重', value: this.currentWeight },
+          { label: '目标体重', value: this.targetWeight }
+        ]
+      } catch (err) {
+        console.error(error)
+      }
+    },
     drawProgressCircle() {
       const query = uni.createSelectorQuery().in(this)
       query.select('.progress-container').boundingClientRect((rect) => {
@@ -53,7 +80,7 @@ export default {
         const height = rect.height
         const centerX = width / 2
         const centerY = height / 2
-        const radius = Math.min(width, height) / 3 
+        const radius = Math.min(width, height) / 3
         const lineWidth = Math.min(12, radius / 10)
         const ctx = uni.createCanvasContext('progressCanvas', this)
         ctx.clearRect(0, 0, width, height)
@@ -85,6 +112,7 @@ export default {
     }
   },
   mounted() {
+    this.getWeightData()
     this.drawProgressCircle()
     uni.getSystemInfo({
       success: (res) => {
@@ -118,14 +146,14 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 260rpx; 
+  min-height: 260rpx;
 }
 
 .progress-container {
   position: relative;
-  width: 100%; 
-  padding-top: 43.33%; 
-  background: transparent; 
+  width: 100%;
+  padding-top: 43.33%;
+  background: transparent;
 }
 
 .progress-canvas {

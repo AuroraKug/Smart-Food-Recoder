@@ -28,6 +28,35 @@
 
 <script>
 export default {
+  props: {
+    field: {
+      type: String,
+      default: ''
+    },
+    // 新增：最小年份
+    minYear: {
+      type: Number,
+      default: 1900
+    },
+    // 新增：最大年份
+    maxYear: {
+      type: Number,
+      default() {
+        return new Date().getFullYear()
+      }
+    },
+    // 新增：默认日期，格式：YYYY-MM-DD
+    defaultDate: {
+      type: String,
+      default() {
+        const now = new Date()
+        const year = now.getFullYear()
+        const month = String(now.getMonth() + 1).padStart(2, '0')
+        const day = String(now.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
+      }
+    }
+  },
   data() {
     return {
       showPicker: false,
@@ -39,20 +68,45 @@ export default {
     }
   },
   created() {
-    // 初始化年份（1900-当前年份）
-    const currentYear = new Date().getFullYear()
-    this.years = Array.from({ length: currentYear - 1899 }, (_, i) => 1900 + i)
-
-    // 初始化天数
-    this.updateDays()
-  },
-  props: {
-    field: {
-      type: String,
-      default: ''
-    }
+    this.initYears()
+    this.initDefaultDate()
   },
   methods: {
+    // 新增：打开日期选择器的方法
+    open() {
+      this.showPicker = true
+      // 每次打开时重新初始化默认日期
+      this.initDefaultDate()
+    },
+    initYears() {
+      // 根据 props 初始化年份范围
+      this.years = Array.from(
+        { length: this.maxYear - this.minYear + 1 },
+        (_, i) => this.minYear + i
+      ).reverse() // 反转数组，让最近的年份在前面
+    },
+    initDefaultDate() {
+      // 解析默认日期
+      const [year, month, day] = this.defaultDate.split('-').map(Number)
+      
+      // 找到年份在数组中的索引（因为年份数组已经反转，所以需要重新计算索引）
+      const yearIndex = this.years.findIndex(y => y === year)
+      // 月份索引需要减1，因为月份数组是从1开始的
+      const monthIndex = month - 1
+      // 日期索引也需要减1
+      const dayIndex = day - 1
+
+      // 设置选中索引
+      this.selectedIndex = [
+        yearIndex > -1 ? yearIndex : 0,
+        monthIndex,
+        dayIndex
+      ]
+      
+      // 更新天数并设置初始日期
+      this.updateDays()
+      this.date = this.defaultDate
+    },
     bindChange(e) {
       const [yearIndex, monthIndex, dayIndex] = e.detail.value
       this.selectedIndex = [yearIndex, monthIndex, dayIndex]
@@ -85,8 +139,6 @@ export default {
         date: this.date
       })
       this.showPicker = false
-      console.log(this.date);
-
     }
   }
 }
@@ -159,4 +211,4 @@ export default {
   background: #4cd964;
   color: white;
 }
-</style>
+</style> 

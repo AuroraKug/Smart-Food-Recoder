@@ -64,6 +64,14 @@
 				"navigationBarBackgroundColor": "#4CD964",
 				"navigationBarTextStyle": "white"
 			}
+		},
+		{
+			"path": "pages/first-login/first-login",
+			"style": {
+				"navigationBarTitleText": "首次登录",
+				"navigationBarBackgroundColor": "#4CD964",
+				"navigationBarTextStyle": "white"
+			}
 		}
 	],
 	"globalStyle": {

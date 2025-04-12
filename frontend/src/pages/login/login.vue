@@ -15,23 +15,6 @@
 <script>
 export default {
   methods: {
-    // login() {
-    //   uni.login({
-    //     provider: 'weixin',
-    //     success: (res) => {
-    //       console.log('登录成功, code: ', res.code);
-    //       uni.switchTab({
-    //         url:'/pages/home/home',
-    //       })
-    //     },
-    //     fail: (err) => {
-    //       console.error('登录失败: ', err)
-    //       uni.showToast({
-    //         title: '登录失败'
-    //       })
-    //     }
-    //   })
-    // }
     async login() {
       try {
         const loginRes = await new Promise((resolve, reject) => {
@@ -70,8 +53,11 @@ export default {
             title: '登录成功'
           });
 
-          uni.switchTab({
-            url: '/pages/home/home'
+          // uni.switchTab({
+          //   url: '/pages/home/home'
+          // });
+          uni.navigateTo({
+            url: '/pages/first-login/first-login'
           });
         } else {
           throw new Error(response.data.message || '登录失败');
@@ -86,25 +72,6 @@ export default {
     }
   }
 }
-// methods: {
-//   login() {
-//     uni.login({
-//       provider: 'weixin',
-//       success: (res) => {
-//         console.log('登录成功, code: ', res.code);
-//         uni.switchTab({
-//           url: '/pages/home/home',
-//         })
-//       },
-//       fail: (err) => {
-//         console.error('登录失败: ', err)
-//         uni.showToast({
-//           title: '登录失败'
-//         })
-//       }
-//     })
-//   }
-// }
 </script>
 
 <style scoped>

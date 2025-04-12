@@ -80,7 +80,7 @@ export default {
   },
   computed: {
     displayValue() {
-      return this.currentValue === '' ? '请输入' : this.currentValue
+      return this.currentValue === '' ? '' : this.currentValue
     },
     hasDecimal() {
       return this.currentValue.includes('.')
