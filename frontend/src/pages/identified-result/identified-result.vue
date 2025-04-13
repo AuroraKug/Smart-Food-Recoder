@@ -17,7 +17,7 @@
             <view class="name-row">
               <text class="food-name" v-if="!mainResult">识别中...</text>
               <text class="food-name" v-else>{{ mainResult.name }}</text>
-              <view class="add-button" v-if="mainResult && mainResult.name !== '非菜'" @click.stop="showRecordPopup(mainResult)">
+              <view class="add-button" v-if="mainResult && mainResult.name !== '非菜'" @click.stop="showRecordPopup(mainResult)" style="background-color: #f2f2f2;">
                 <uni-icons type="plus" size="24" color="#4cd964"></uni-icons>
               </view>
             </view>
@@ -67,8 +67,8 @@
             </view>
             <view class="prob-action">
               <text class="other-probability">{{ (item.probability * 100).toFixed(2) }}%</text>
-              <view class="add-button" @click.stop="showRecordPopup(item)">
-                <uni-icons type="plus" size="24" color="#"></uni-icons>
+              <view class="add-button" @click.stop="showRecordPopup(item)" style="background-color: #f8f9fa;">
+                <uni-icons type="plus" size="24" color="#4cd964" ></uni-icons>
               </view>
             </view>
           </view>
@@ -85,7 +85,6 @@
       <!-- 操作按钮 -->
       <view class="button-container">
         <button class="action-button" @click="retakePhoto">重新拍摄</button>
-        <button class="action-button" @click="confirmSelection" v-if="mainResult && mainResult.name !== '非菜'">确认选择</button>
       </view>
     </view>
 
@@ -177,8 +176,19 @@ export default {
       }
     },
     getProgressColor(percent) {
-      const hue = percent * 120 / 100
-      return `hsl(${hue}, 100%, 50%)`
+      // 将百分比转换为0-1之间的值
+      const value = percent / 100
+      
+      // 定义起始颜色（暗红色）和结束颜色（绿色）
+      const startColor = { r: 220, g: 53, b: 69 }  // 暗红色
+      const endColor = { r: 70, g: 215, b: 105 }   // #46d769
+      
+      // 计算当前颜色
+      const r = Math.round(startColor.r + (endColor.r - startColor.r) * value)
+      const g = Math.round(startColor.g + (endColor.g - startColor.g) * value)
+      const b = Math.round(startColor.b + (endColor.b - startColor.b) * value)
+      
+      return `rgb(${r}, ${g}, ${b})`
     },
     async identifyFood() {
       try {
@@ -223,12 +233,6 @@ export default {
     },
     retakePhoto() {
       uni.navigateBack()
-    },
-    confirmSelection() {
-      if (this.mainResult) {
-        this.$emit('select', this.mainResult)
-        uni.navigateBack()
-      }
     },
     showRecordPopup(food) {
       this.selectedFood = food
@@ -565,7 +569,7 @@ export default {
 
 .button-container {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   margin-top: 40rpx;
 }
 
