@@ -14,8 +14,13 @@
           </view>
 
           <view class="food-info">
-            <text class="food-name" v-if="!mainResult">识别中...</text>
-            <text class="food-name" v-else>{{ mainResult.name }}</text>
+            <view class="name-row">
+              <text class="food-name" v-if="!mainResult">识别中...</text>
+              <text class="food-name" v-else>{{ mainResult.name }}</text>
+              <view class="add-button" v-if="mainResult && mainResult.name !== '非菜'" @click.stop="showRecordPopup(mainResult)">
+                <uni-icons type="plus" size="24" color="#4cd964"></uni-icons>
+              </view>
+            </view>
 
             <view class="progress-container" v-if="mainResult && mainResult.name !== '非菜'">
               <uni-icons type="eye" size="18" color="#999"></uni-icons>
@@ -26,9 +31,6 @@
                 }"></view>
               </view>
               <text class="progress-value">{{ progress }}%</text>
-            </view>
-            <view class="add-button" v-if="mainResult && mainResult.name !== '非菜'" @click="showRecordPopup(mainResult)">
-              <uni-icons type="plus" size="24" color="#4cd964"></uni-icons>
             </view>
           </view>
         </view>
@@ -59,11 +61,15 @@
       <view class="other-results" v-if="otherResults.length > 0 && mainResult && mainResult.name !== '非菜'">
         <view class="other-result-item" v-for="(item, index) in otherResults" :key="index">
           <view class="result-row">
-            <text class="other-food-name">{{ item.name }}</text>
-            <text class="other-food-calories">{{ item.calorie }}卡/100克</text>
-            <text class="other-probability">{{ (item.probability * 100).toFixed(2) }}%</text>
-            <view class="add-button" @click="showRecordPopup(item)">
-              <uni-icons type="plus" size="24" color="#4cd964"></uni-icons>
+            <view class="name-calories">
+              <text class="other-food-name">{{ item.name }}</text>
+              <text class="other-food-calories">{{ item.calorie }}卡/100克</text>
+            </view>
+            <view class="prob-action">
+              <text class="other-probability">{{ (item.probability * 100).toFixed(2) }}%</text>
+              <view class="add-button" @click.stop="showRecordPopup(item)">
+                <uni-icons type="plus" size="24" color="#"></uni-icons>
+              </view>
             </view>
           </view>
         </view>
@@ -196,9 +202,9 @@ export default {
             this.mainResult = data.result[0]
             this.progress = (this.mainResult.probability * 100).toFixed(2)
             
-            // 过滤其他结果（概率大于10%）
+            // 过滤其他结果（概率大于5%且不是"非菜"）
             this.otherResults = data.result.slice(1).filter(item => 
-              parseFloat(item.probability) > 0.05
+              parseFloat(item.probability) > 0.05 && item.name !== '非菜'
             )
             
             // 检查是否有低概率结果
@@ -378,7 +384,7 @@ export default {
 .icon-wrapper {
   width: 120rpx;
   height: 120rpx;
-  background: #FFF4E6;
+  background: #f2f2f2;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -397,11 +403,17 @@ export default {
   flex-direction: column;
 }
 
+.name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
 .food-name {
   font-size: 36rpx;
   font-weight: 500;
   color: #333;
-  margin-bottom: 12rpx;
 }
 
 .progress-container {
@@ -485,32 +497,37 @@ export default {
 
 .result-row {
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
   align-items: center;
   padding: 20rpx 0;
   border-bottom: 1rpx solid #eeeeee;
 }
 
+.name-calories {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.prob-action {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
 .other-food-name {
-  flex: 2;
   font-size: 28rpx;
   color: #333333;
-  text-align: left;
 }
 
 .other-food-calories {
-  flex: 3;
   font-size: 24rpx;
   color: #666666;
-  text-align: center;
 }
 
 .other-probability {
-  flex: 2;
   font-size: 24rpx;
   color: #999999;
-  text-align: right;
 }
 
 .add-button {
@@ -521,7 +538,6 @@ export default {
   justify-content: center;
   background-color: #ffffff;
   border-radius: 50%;
-  margin-left: 20rpx;
 }
 
 .non-food-warning {

@@ -131,7 +131,7 @@ export default {
     },
     handleNumberConfirm({ field, value }) {
       if (field === 'currentValue') {
-        this.currentValue = value + 'kg'
+        this.currentValue = value
       }
     }
   }
