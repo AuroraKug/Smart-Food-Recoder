@@ -152,6 +152,8 @@ export default {
         return
       }
 
+      console.log(this.selectedFood);
+      console.log(this.weight);
       try {
         const now = new Date()
         const recordTime = now.getFullYear() + '-' +
@@ -166,10 +168,8 @@ export default {
             method: 'POST',
             data: {
               foodName: this.selectedFood.name,
-              caloriesPer100g: this.selectedFood.calories,
+              caloriesPer100g: parseFloat(this.selectedFood.calories),
               weight: parseFloat(this.weight),
-              recordTime: recordTime,
-              totalCalories: this.totalCalories
             },
             header: {
               'Content-Type': 'application/json',
