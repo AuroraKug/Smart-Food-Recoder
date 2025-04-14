@@ -4,18 +4,14 @@
     <view class="profile-card">
       <view class="avatar-section">
         <image class="avatar" :src="userInfo.avatar || '/static/default-avatar.png'"></image>
-        <view class="edit-avatar" @click="changeAvatar">
-          <uni-icons type="camera-filled" size="20" color="#fff"></uni-icons>
-        </view>
       </view>
       <view class="info-section">
         <text class="name">{{ userInfo.nickname || '未设置昵称' }}</text>
-        <text class="motto">{{ userInfo.motto || '这个人很懒，什么都没留下~' }}</text>
       </view>
     </view>
 
     <!-- 数据统计 -->
-    <view class="data-card">
+    <!-- <view class="data-card">
       <view class="data-item" @click="navTo('weight')">
         <text class="value">{{ userData.weight || '--' }}</text>
         <text class="label">当前体重(kg)</text>
@@ -24,11 +20,11 @@
         <text class="value">{{ userData.days || 0 }}</text>
         <text class="label">坚持天数</text>
       </view>
-      <!-- <view class="data-item" @click="navTo('achievement')">
+      <view class="data-item" @click="navTo('achievement')">
         <text class="value">{{ userData.achievements || 0 }}</text>
         <text class="label">成就徽章</text>
-      </view> -->
-    </view>
+      </view>
+    </view> -->
 
     <!-- 设置列表 -->
     <view class="settings-list">
@@ -40,6 +36,11 @@
       <view class="list-item" @click="goToRecord">
         <uni-icons type="list" size="18" color="#666"></uni-icons>
         <text>饮食记录</text>
+        <uni-icons type="forward" size="14" color="#999"></uni-icons>
+      </view>
+      <view class="list-item" @click="goToHistory">
+        <uni-icons type="star" size="18" color="#666"></uni-icons>
+        <text>拍照历史</text>
         <uni-icons type="forward" size="14" color="#999"></uni-icons>
       </view>
     </view>
@@ -57,8 +58,7 @@ export default {
     return {
       userInfo: {
         avatar: '',
-        nickname: '健康达人',
-        motto: '每天进步一点点'
+        nickname: ''
       },
       userData: {
         weight: 62.5,
@@ -67,7 +67,49 @@ export default {
       }
     }
   },
+  onLoad() {
+    this.getUserProfile()
+  },
   methods: {
+    // 获取用户信息
+    getUserProfile() {
+      // 检查是否已授权
+      uni.getSetting({
+        success: (res) => {
+          if (res.authSetting['scope.userInfo']) {
+            // 已经授权，可以直接调用 getUserInfo 获取头像昵称
+            this.getUserInfo()
+          } else {
+            // 未授权，调用微信登录接口
+            uni.getUserProfile({
+              desc: '用于完善用户资料',
+              success: (res) => {
+                this.userInfo.avatar = res.userInfo.avatarUrl
+                this.userInfo.nickname = res.userInfo.nickName
+              },
+              fail: (err) => {
+                console.error('获取用户信息失败', err)
+                uni.showToast({
+                  title: '获取用户信息失败',
+                  icon: 'none'
+                })
+              }
+            })
+          }
+        }
+      })
+    },
+
+    // 获取已授权的用户信息
+    getUserInfo() {
+      uni.getUserInfo({
+        success: (res) => {
+          this.userInfo.avatar = res.userInfo.avatarUrl
+          this.userInfo.nickname = res.userInfo.nickName
+        }
+      })
+    },
+
     goToInfo() {
       uni.navigateTo({
         url:'/pages/profile-info/profile-info',
@@ -78,13 +120,9 @@ export default {
         url:'/pages/food-record/food-record',
       })
     },
-    changeAvatar() {
-      uni.chooseImage({
-        count: 1,
-        success: (res) => {
-          this.userInfo.avatar = res.tempFilePaths[0]
-          uni.showToast({ title: '头像更新成功' })
-        }
+    goToHistory() {
+      uni.navigateTo({
+        url:'/pages/photo-history/photo-history',
       })
     },
     navTo(page) {
@@ -139,7 +177,6 @@ export default {
 }
 
 .avatar-section {
-  position: relative;
   margin-right: 30rpx;
 }
 
@@ -150,19 +187,6 @@ export default {
   border: 4rpx solid #f0f0f0;
 }
 
-.edit-avatar {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 40rpx;
-  height: 40rpx;
-  background: #4CD964;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .info-section {
   flex: 1;
 }
@@ -171,12 +195,6 @@ export default {
   font-size: 36rpx;
   font-weight: bold;
   display: block;
-  margin-bottom: 10rpx;
-}
-
-.motto {
-  font-size: 26rpx;
-  color: #999;
 }
 
 .data-card {

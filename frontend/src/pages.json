@@ -80,6 +80,14 @@
 				"navigationBarBackgroundColor": "#4CD964",
 				"navigationBarTextStyle": "white"
 			}
+		},
+		{
+			"path": "pages/photo-history/photo-history",
+			"style": {
+				"navigationBarTitleText": "拍照历史",
+				"navigationBarBackgroundColor": "#4CD964",
+				"navigationBarTextStyle": "white"
+			}
 		}
 	],
 	"globalStyle": {
