@@ -37,16 +37,11 @@
         <text>个人信息设置</text>
         <uni-icons type="forward" size="14" color="#999"></uni-icons>
       </view>
-      <!-- <view class="list-item" @click="navTo('target')">
-        <uni-icons type="flag" size="18" color="#666"></uni-icons>
+      <view class="list-item" @click="goToRecord">
+        <uni-icons type="list" size="18" color="#666"></uni-icons>
         <text>健康目标</text>
         <uni-icons type="forward" size="14" color="#999"></uni-icons>
       </view>
-      <view class="list-item" @click="navTo('reminder')">
-        <uni-icons type="notification" size="18" color="#666"></uni-icons>
-        <text>提醒设置</text>
-        <uni-icons type="forward" size="14" color="#999"></uni-icons>
-      </view> -->
     </view>
 
     <!-- 退出登录 -->
@@ -76,6 +71,11 @@ export default {
     goToInfo() {
       uni.navigateTo({
         url:'/pages/profile-info/profile-info',
+      })
+    },
+    goToRecord() {
+      uni.navigateTo({
+        url:'/pages/food-record/food-record',
       })
     },
     changeAvatar() {

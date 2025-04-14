@@ -72,6 +72,14 @@
 				"navigationBarBackgroundColor": "#4CD964",
 				"navigationBarTextStyle": "white"
 			}
+		},
+		{
+			"path": "pages/food-record/food-record",
+			"style": {
+				"navigationBarTitleText": "饮食记录",
+				"navigationBarBackgroundColor": "#4CD964",
+				"navigationBarTextStyle": "white"
+			}
 		}
 	],
 	"globalStyle": {

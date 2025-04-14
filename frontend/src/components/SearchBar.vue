@@ -4,7 +4,7 @@
       <uni-icons type="search" size="26" color="#999" class="search-icon"></uni-icons>
       <input 
         class="search-input" 
-        placeholder="请输入搜索内容" 
+        placeholder="请输入食物名称" 
         placeholder-class="placeholder-style" 
         v-model="searchText"
         @input="handleInput" 
