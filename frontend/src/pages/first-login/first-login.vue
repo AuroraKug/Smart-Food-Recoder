@@ -45,7 +45,7 @@
     <button class="submit-btn" @click="submitInfo">完成</button>
 
     <DatePicker ref="datePicker" :field="currentField" :min-year="1900" :max-year="new Date().getFullYear()"
-      :default-date="getBirthdateDefaultDate()" @save="handleDateSave" />
+       @save="handleDateSave" />
 
     <NumberKeyboard ref="heightKeyboard" field="height" title="请输入身高" unit="cm" :max-length="5" :range="[50, 250]"
       :decimal-digits="1" @confirm="handleNumberConfirm" />
@@ -123,14 +123,6 @@ export default {
       } else if (field === 'targetWeight') {
         this.userInfo.targetWeight = value
       }
-    },
-    getBirthdateDefaultDate() {
-      // 默认设置为18岁
-      const now = new Date()
-      const year = now.getFullYear() - 18
-      const month = String(now.getMonth() + 1).padStart(2, '0')
-      const day = String(now.getDate()).padStart(2, '0')
-      return `${year}-${month}-${day}`
     },
     async submitInfo() {
       if (!this.userInfo.username) {
@@ -224,9 +216,9 @@ export default {
           })
           
           // 跳转到首页
-          // uni.switchTab({
-          //   url: '/pages/home/home'
-          // })
+          uni.switchTab({
+            url: '/pages/home/home'
+          })
         } else {
           throw new Error(weightResponse.data.message || '保存体重信息失败')
         }

@@ -7,11 +7,6 @@
         <text class="cal-value">1,200</text>
         <text>kcal</text>
       </view>
-      <view class="data-item">
-        <text>消耗</text>
-        <text class="cal-value">850</text>
-        <text>kcal</text>
-      </view>
     </view>
   </view>
 </template>

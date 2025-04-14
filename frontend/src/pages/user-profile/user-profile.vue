@@ -39,7 +39,7 @@
       </view>
       <view class="list-item" @click="goToRecord">
         <uni-icons type="list" size="18" color="#666"></uni-icons>
-        <text>健康目标</text>
+        <text>饮食记录</text>
         <uni-icons type="forward" size="14" color="#999"></uni-icons>
       </view>
     </view>

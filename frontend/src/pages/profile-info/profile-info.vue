@@ -1,60 +1,66 @@
 <template>
-  <view class="profile-container">
-    <view class="profile-block">
-      <view class="profile-item" @tap="editField('gender')">
-        <text class="label">性别</text>
-        <text class="value">{{ profileData.gender }}</text>
-        <uni-icons type="forward" size="16" color="#999"></uni-icons>
+  <view class="page-wrapper">
+    <view class="profile-container">
+      <view class="profile-block">
+        <view class="profile-item" @tap="editField('username')">
+          <text class="label">用户名</text>
+          <text class="value">{{ profileData.username }}</text>
+          <uni-icons type="forward" size="16" color="#999"></uni-icons>
+        </view>
+        <view class="profile-item" @tap="editField('gender')">
+          <text class="label">性别</text>
+          <text class="value">{{ profileData.gender }}</text>
+          <uni-icons type="forward" size="16" color="#999"></uni-icons>
+        </view>
+        <view class="profile-item" @click="openPicker('birth')">
+          <text class="label">生日</text>
+          <text class="value">{{ profileData.birthdate }}</text>
+          <uni-icons type="forward" size="16" color="#999"></uni-icons>
+        </view>
+        <view class="profile-item" @click="$refs.heightKeyboard.open(profileData.height)">
+          <text class="label">身高</text>
+          <text class="value">{{ profileData.height ? profileData.height + 'cm' : '' }}</text>
+          <uni-icons type="forward" size="16" color="#999"></uni-icons>
+        </view>
+        <view class="profile-item" @click="$refs.currentWeightKeyboard.open(profileData.currentWeight)">
+          <text class="label">当前体重</text>
+          <text class="value">{{ profileData.currentWeight ? profileData.currentWeight + 'kg' : '' }}</text>
+          <uni-icons type="forward" size="16" color="#999"></uni-icons>
+        </view>
       </view>
-      <view class="profile-item" @click="openPicker('birth')">
-        <text class="label">生日</text>
-        <text class="value">{{ profileData.birthdate }}</text>
-        <uni-icons type="forward" size="16" color="#999"></uni-icons>
+
+      <view class="profile-block">
+        <view class="profile-item" @click="$refs.initialWeightKeyboard.open(profileData.initialWeight)">
+          <text class="label">初始体重</text>
+          <text class="value">{{ profileData.initialWeight ? profileData.initialWeight + 'kg' : '' }}</text>
+          <uni-icons type="forward" size="16" color="#999"></uni-icons>
+        </view>
+        <view class="profile-item" @click="openPicker('initial')">
+          <text class="label">初始日期</text>
+          <text class="value">{{ profileData.initialDate }}</text>
+          <uni-icons type="forward" size="16" color="#999"></uni-icons>
+        </view>
       </view>
-      <view class="profile-item" @click="$refs.heightKeyboard.open(profileData.height)">
-        <text class="label">身高</text>
-        <text class="value">{{ profileData.height }}</text>
-        <uni-icons type="forward" size="16" color="#999"></uni-icons>
+
+      <!-- 底部保存按钮 -->
+      <view class="save-button-container">
+        <button class="save-button" @tap="saveProfile">保存</button>
       </view>
-      <view class="profile-item" @click="$refs.currentWeightKeyboard.open(profileData.currentWeight)">
-        <text class="label">当前体重</text>
-        <text class="value">{{ profileData.currentWeight }}</text>
-        <uni-icons type="forward" size="16" color="#999"></uni-icons>
-      </view>
+
+      <DatePicker ref="datePicker" :field="currentField" @save="handleDateSave" />
+
+      <NumberKeyboard ref="heightKeyboard" field="height" title="请输入身高" unit="cm" :max-length="5" :range="[50, 250]"
+        :decimal-digits="1" @confirm="handleNumberConfirm" />
+
+      <NumberKeyboard ref="currentWeightKeyboard" field="currentWeight" title="请输入当前体重" unit="kg" :max-length="5"
+        :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" />
+
+      <NumberKeyboard ref="initialWeightKeyboard" field="initialWeight" title="请输入初始体重" unit="kg" :max-length="5"
+        :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" />
+
+      <!-- 自定义数字键盘弹窗 -->
     </view>
-
-    <view class="profile-block">
-      <view class="profile-item" @click="$refs.initialWeightKeyboard.open(profileData.initialWeight)">
-        <text class="label">初始体重</text>
-        <text class="value">{{ profileData.initialWeight }}</text>
-        <uni-icons type="forward" size="16" color="#999"></uni-icons>
-      </view>
-      <view class="profile-item" @click="openPicker('initial')">
-        <text class="label">初始日期</text>
-        <text class="value">{{ profileData.initialDate }}</text>
-        <uni-icons type="forward" size="16" color="#999"></uni-icons>
-      </view>
-    </view>
-
-    <!-- 底部保存按钮 -->
-    <view class="save-button-container">
-      <button class="save-button" @tap="saveProfile">保存</button>
-    </view>
-
-    <DatePicker ref="datePicker" :field="currentField" @save="handleDateSave" />
-
-    <NumberKeyboard ref="heightKeyboard" field="height" title="请输入身高" unit="cm" :max-length="5" :range="[50, 250]"
-      :decimal-digits="1" @confirm="handleNumberConfirm" />
-
-    <NumberKeyboard ref="currentWeightKeyboard" field="currentWeight" title="请输入当前体重" unit="kg" :max-length="5"
-      :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" />
-
-    <NumberKeyboard ref="initialWeightKeyboard" field="initialWeight" title="请输入初始体重" unit="kg" :max-length="5"
-      :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" />
-
-    <!-- 自定义数字键盘弹窗 -->
   </view>
-
 </template>
 
 <script>
@@ -70,6 +76,11 @@ export default {
   },
   data() {
     return {
+      weightGoal: {
+        startWeight: '',
+        currentWeight: '',
+        targetWeight: ''
+      },
       profileData: {
         username: 'Name',
         gender: '男',
@@ -99,7 +110,8 @@ export default {
   methods: {
     async fetchUserInfo() {
       try {
-        const response = await new Promise((resolve, reject) => {
+        // 获取用户基本信息
+        const userResponse = await new Promise((resolve, reject) => {
           uni.request({
             url: BASE_URL + '/api/user/info',
             method: 'GET',
@@ -110,23 +122,38 @@ export default {
             success: (res) => resolve(res),
             fail: (err) => reject(err)
           })
-        })
+        });
 
-        if (response.statusCode === 200) {
-          // 假设后端返回的数据结构是 { username, gender, birthday }
-          const userInfo = response.data;
+        // 获取体重目标信息
+        const weightResponse = await new Promise((resolve, reject) => {
+          uni.request({
+            url: BASE_URL + '/api/weight/goal/getGoal',
+            method: 'GET',
+            header: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + uni.getStorageSync('token')
+            },
+            success: (res) => resolve(res),
+            fail: (err) => reject(err)
+          })
+        });
 
+        if (userResponse.statusCode === 200) {
+          const userInfo = userResponse.data;
           this.profileData.username = userInfo.userName || '未命名用户';
           this.profileData.gender = userInfo.gender || '未知';
           this.profileData.birthdate = userInfo.birthdate || '2000-01-01';
-          this.profileData.height = userInfo.height || '未设置';
+          this.profileData.height = userInfo.height || '';
+        }
 
-          console.log('获取用户信息成功', userInfo);
-        } else {
-          console.error('获取用户信息失败', response);
+        if (weightResponse.statusCode === 200) {
+          console.log('体重目标信息：', weightResponse.data);
+          this.weightGoal = weightResponse.data;
+          this.profileData.initialWeight = this.weightGoal.startWeight || 0;
+          this.profileData.currentWeight = this.weightGoal.currentWeight || 0;
         }
       } catch (err) {
-        console.error('请求用户信息失败：', err);
+        console.error('获取用户信息失败：', err);
       }
     },
     async updateUserInfo() {
@@ -171,6 +198,19 @@ export default {
     editField(field) {
       this.editFieldName = field;
       switch (field) {
+        case 'username':
+          uni.showModal({
+            title: '修改用户名',
+            editable: true,
+            placeholderText: '请输入用户名',
+            content: this.profileData.username,
+            success: (res) => {
+              if (res.confirm && res.content) {
+                this.profileData.username = res.content;
+              }
+            }
+          });
+          break;
         case 'gender':
           uni.showActionSheet({
             itemList: ['男', '女'],
@@ -242,11 +282,11 @@ export default {
     },
     handleNumberConfirm({ field, value }) {
       if (field === 'height') {
-        this.profileData.height = value + 'cm'
+        this.profileData.height = value
       } else if (field === 'currentWeight') {
-        this.profileData.currentWeight = value + 'kg'
+        this.profileData.currentWeight = value
       } else if (field === 'initialWeight') {
-        this.profileData.initialWeight = value + 'kg'
+        this.profileData.initialWeight = value
       }
     }
   }
@@ -254,6 +294,11 @@ export default {
 </script>
 
 <style scoped>
+.page-wrapper {
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
 .profile-container {
   padding: 20rpx;
   background: #f5f5f5;
@@ -268,19 +313,23 @@ export default {
 .profile-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 30rpx;
   border-bottom: 1rpx solid #eee;
 }
 
 .label {
+  width: 180rpx;
   font-size: 32rpx;
   color: #333;
 }
 
 .value {
+  flex: 1;
   font-size: 32rpx;
   color: #666;
+  text-align: left;
+  padding-right: 20rpx;
 }
 
 .save-button-container {

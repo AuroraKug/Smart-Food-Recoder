@@ -33,111 +33,132 @@ export default {
       type: String,
       default: ''
     },
-    // 新增：最小年份
     minYear: {
       type: Number,
       default: 1900
     },
-    // 新增：最大年份
     maxYear: {
       type: Number,
       default() {
         return new Date().getFullYear()
-      }
-    },
-    // 新增：默认日期，格式：YYYY-MM-DD
-    defaultDate: {
-      type: String,
-      default() {
-        const now = new Date()
-        const year = now.getFullYear()
-        const month = String(now.getMonth() + 1).padStart(2, '0')
-        const day = String(now.getDate()).padStart(2, '0')
-        return `${year}-${month}-${day}`
       }
     }
   },
   data() {
     return {
       showPicker: false,
-      date: '',
       years: [],
-      months: Array.from({ length: 12 }, (_, i) => i + 1),
+      months: [],
       days: [],
-      selectedIndex: [0, 0, 0]
+      selectedIndex: [0, 0, 0],
+      today: this.getToday()
     }
   },
   created() {
     this.initYears()
-    this.initDefaultDate()
+    this.initMonths()
+    this.initDays()
   },
   methods: {
-    // 新增：打开日期选择器的方法
+    // 获取东八区的今天日期
+    getToday() {
+      const now = new Date()
+      const utc8Offset = 8 * 60 // 东八区偏移分钟数
+      const localOffset = now.getTimezoneOffset() // 本地时区偏移分钟数
+      const utc8Date = new Date(now.getTime() + (utc8Offset + localOffset) * 60000)
+      
+      return {
+        year: utc8Date.getFullYear(),
+        month: utc8Date.getMonth() + 1,
+        day: utc8Date.getDate()
+      }
+    },
+    
     open() {
       this.showPicker = true
-      // 每次打开时重新初始化默认日期
-      this.initDefaultDate()
     },
+
     initYears() {
-      // 根据 props 初始化年份范围
       this.years = Array.from(
         { length: this.maxYear - this.minYear + 1 },
         (_, i) => this.minYear + i
-      ).reverse() // 反转数组，让最近的年份在前面
+      ).reverse()
     },
-    initDefaultDate() {
-      // 解析默认日期
-      const [year, month, day] = this.defaultDate.split('-').map(Number)
-      
-      // 找到年份在数组中的索引（因为年份数组已经反转，所以需要重新计算索引）
-      const yearIndex = this.years.findIndex(y => y === year)
-      // 月份索引需要减1，因为月份数组是从1开始的
-      const monthIndex = month - 1
-      // 日期索引也需要减1
-      const dayIndex = day - 1
 
-      // 设置选中索引
-      this.selectedIndex = [
-        yearIndex > -1 ? yearIndex : 0,
-        monthIndex,
-        dayIndex
-      ]
-      
-      // 更新天数并设置初始日期
-      this.updateDays()
-      this.date = this.defaultDate
-    },
-    bindChange(e) {
-      const [yearIndex, monthIndex, dayIndex] = e.detail.value
-      this.selectedIndex = [yearIndex, monthIndex, dayIndex]
-      this.updateDays()
-    },
-    updateDays() {
+    initMonths() {
       const selectedYear = this.years[this.selectedIndex[0]]
-      const selectedMonth = this.months[this.selectedIndex[1]]
-
-      // 计算当月天数
-      const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate()
-      this.days = Array.from({ length: daysInMonth }, (_, i) => i + 1)
-
-      // 调整日期索引防止越界
-      if (this.selectedIndex[2] >= daysInMonth) {
-        this.selectedIndex[2] = daysInMonth - 1
+      if (selectedYear === this.today.year) {
+        // 如果是今年，只显示到当前月份
+        this.months = Array.from(
+          { length: this.today.month },
+          (_, i) => String(i + 1).padStart(2, '0')
+        )
+      } else {
+        // 其他年份显示所有月份
+        this.months = Array.from(
+          { length: 12 },
+          (_, i) => String(i + 1).padStart(2, '0')
+        )
       }
     },
-    saveDate() {
-      const year = this.years[this.selectedIndex[0]]
-      const month = this.months[this.selectedIndex[1]].toString().padStart(2, '0')
-      const day = this.days[this.selectedIndex[2]].toString().padStart(2, '0')
-      this.date = `${year}-${month}-${day}`
-      this.showPicker = false
+
+    initDays() {
+      const selectedYear = this.years[this.selectedIndex[0]]
+      const selectedMonth = parseInt(this.months[this.selectedIndex[1]])
+      
+      // 计算当月天数
+      const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate()
+      
+      // 如果是当年当月，只显示到今天
+      if (selectedYear === this.today.year && selectedMonth === this.today.month) {
+        this.days = Array.from(
+          { length: this.today.day },
+          (_, i) => String(i + 1).padStart(2, '0')
+        )
+      } else {
+        this.days = Array.from(
+          { length: daysInMonth },
+          (_, i) => String(i + 1).padStart(2, '0')
+        )
+      }
+
+      // 调整日期索引防止越界
+      if (this.selectedIndex[2] >= this.days.length) {
+        this.selectedIndex[2] = this.days.length - 1
+      }
     },
+
+    bindChange(e) {
+      const val = e.detail.value
+      
+      // 更新选中索引
+      this.selectedIndex = val
+      
+      // 重新初始化月份和日期
+      this.initMonths()
+      this.initDays()
+      
+      // 确保选中的月份和日期有效
+      if (this.selectedIndex[1] >= this.months.length) {
+        this.selectedIndex[1] = this.months.length - 1
+      }
+      if (this.selectedIndex[2] >= this.days.length) {
+        this.selectedIndex[2] = this.days.length - 1
+      }
+    },
+
     handleSave() {
-      this.saveDate()
+      const year = this.years[this.selectedIndex[0]]
+      const month = this.months[this.selectedIndex[1]]
+      const day = this.days[this.selectedIndex[2]]
+      
+      const date = `${year}-${month}-${day}`
+      
       this.$emit('save', {
         field: this.field,
-        date: this.date
+        date: date
       })
+      
       this.showPicker = false
     }
   }
