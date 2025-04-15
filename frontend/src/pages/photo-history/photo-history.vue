@@ -26,35 +26,39 @@
 </template>
 
 <script>
+
+const BASE_URL = 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.com'
+
+
 export default {
   data() {
     return {
       // 模拟数据
       historyData: [
-        {
-          id: 1,
-          imageUrl: '/static/images/food1.jpg',
-          foodName: 'Diced Beef',
-          probability: 95,
-          date: '2025-04-09',
-          searchResult: {/* 搜索结果数据 */}
-        },
-        {
-          id: 2,
-          imageUrl: '/static/images/food2.jpg',
-          foodName: 'Cola',
-          probability: 88,
-          date: '2025-04-09',
-          searchResult: {/* 搜索结果数据 */}
-        },
-        {
-          id: 3,
-          imageUrl: '/static/images/food3.jpg',
-          foodName: 'Salad',
-          probability: 92,
-          date: '2025-04-08',
-          searchResult: {/* 搜索结果数据 */}
-        },
+        //{
+        //  id: 1,
+        //  imageUrl: '/static/images/food1.jpg',
+        //  foodName: 'Diced Beef',
+        //  probability: 95,
+        //  date: '2025-04-09',
+        //  searchResult: {/* 搜索结果数据 */}
+        //},
+        //{
+        //  id: 2,
+        //  imageUrl: '/static/images/food2.jpg',
+        //  foodName: 'Cola',
+        //  probability: 88,
+        //  date: '2025-04-09',
+        //  searchResult: {/* 搜索结果数据 */}
+        //},
+        //{
+        //  id: 3,
+        //  imageUrl: '/static/images/food3.jpg',
+        //  foodName: 'Salad',
+        //  probability: 92,
+        //  date: '2025-04-08',
+        //  searchResult: {/* 搜索结果数据 */}
+        //},
         // 更多数据...
       ]
     }
@@ -79,8 +83,65 @@ export default {
         }, {})
     }
   },
-
+  onLoad() {
+    this.fetchSearchHistory();
+  },
   methods: {
+    async fetchSearchHistory() {
+      try {
+        const res = await new Promise((resolve, reject) => {
+          uni.request({
+            url: BASE_URL + '/api/photo/searchHistory',
+            method: 'GET',
+            header: {
+              'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+              'Content-Type': 'application/json'
+            },
+            success: resolve,
+            fail: reject
+          });
+        });
+        // console.log('获取识别历史成功：', res.data);
+        // 处理每条记录：选出概率最高的食物名和概率
+        const processedData = res.data.map(item => {
+          const foodCandidates = item.foodCandidates || {};
+          let maxProb = 0;
+          let foodName = '非菜';
+
+          // // 仅保留 key 是字符串、value 是 number 类型，排除像 log_id 这种字段
+          // for (const [name, prob] of Object.entries(foodCandidates)) {
+          //   if (typeof prob !== 'number') continue;  // ⛔ 跳过非数字的字段
+
+          //   if (prob > maxProb) {
+          //     maxProb = prob;
+          //     foodName = name;
+          //   }
+          // }
+          if (foodCandidates.result && foodCandidates.result.length > 0) {
+            // 设置主要结果
+            this.mainResult = foodCandidates.result[0]
+            console.log('foodCandidates.mainFesult:', this.mainResult)
+            maxProb = (parseFloat(this.mainResult.probability) * 100).toFixed(2)
+            foodName = this.mainResult.name
+          }
+
+
+          return {
+            id: item.id,
+            imageUrl: item.imageBase64 ? 'data:image/jpeg;base64,' + item.imageBase64 : '', // Base64转图片
+            foodName: foodName,
+            probability: maxProb,
+            date: item.createdAt.substring(0, 10)  // 截取日期部分
+          };
+        });
+
+        this.historyData = processedData;
+
+      } catch (err) {
+        console.error('获取识别历史失败：', err);
+      }
+    },
+
     isToday(date) {
       const today = new Date()
       return this.formatDate(today) === date
@@ -101,8 +162,10 @@ export default {
     },
 
     navigateToResult(item) {
+      uni.setStorageSync('currentImage', item.imageBase64 ? 'data:image/jpeg;base64,' + item.imageBase64 : '')
       // 跳转到识别结果页面
       uni.navigateTo({
+        //???
         url: `/pages/identified-result/identified-result?id=${item.id}`
       })
     }

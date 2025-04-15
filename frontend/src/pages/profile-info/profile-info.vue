@@ -177,8 +177,35 @@ export default {
           })
         })
 
+        
+
         console.log('更新成功：', response.data)
         await this.fetchUserInfo(); // ✅ 自动刷新页面数据
+      } catch (err) {
+        console.error('更新失败：', err)
+      }
+    },
+    async updateUserWeightGoal(){
+      try {
+        const response = await new Promise((resolve, reject) => {
+          uni.request({
+            url: BASE_URL + '/api/weight/goal/update',
+            method: 'POST',
+            data: {
+              startWeight: this.profileData.initialWeight,
+              currentWeight: this.profileData.currentWeight,
+              targetWeight: this.weightGoal.targetWeight
+            },
+            header: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + uni.getStorageSync('token')
+            },
+            success: (res) => resolve(res),
+            fail: (err) => reject(err)
+          })
+        })
+
+        console.log('更新成功：', response.data)
       } catch (err) {
         console.error('更新失败：', err)
       }
