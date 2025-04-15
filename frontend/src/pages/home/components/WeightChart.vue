@@ -70,6 +70,7 @@ export default {
       } catch (err) {
         console.error(error)
       }
+      console.log('weightData', this.weightData)
     },
     drawProgressCircle() {
       const query = uni.createSelectorQuery().in(this)

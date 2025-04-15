@@ -3,8 +3,8 @@
     <block v-for="(group, date) in groupedHistory" :key="date">
       <!-- 日期标题 -->
       <view class="date-header">
-        <text v-if="isToday(date)">Today</text>
-        <text v-else-if="isYesterday(date)">Yesterday</text>
+        <text v-if="isToday(date)">今天</text>
+        <text v-else-if="isYesterday(date)">昨天</text>
         <text v-else>{{ formatDate(date) }}</text>
       </view>
 
@@ -17,7 +17,7 @@
           @tap="navigateToResult(item)"
         >
           <image class="food-image" :src="item.imageURL" mode="aspectFill" />
-          <view class="probability">{{ item.probability }}%</view>
+          <view class="probability" v-if="item.foodName !== '非菜'">{{ item.probability }}%</view>
           <view class="food-name">{{ item.foodName }}</view>
         </view>
       </view>
@@ -33,34 +33,10 @@ const BASE_URL = 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.
 export default {
   data() {
     return {
-      // 模拟数据
-      historyData: [
-        //{
-        //  id: 1,
-        //  imageUrl: '/static/images/food1.jpg',
-        //  foodName: 'Diced Beef',
-        //  probability: 95,
-        //  date: '2025-04-09',
-        //  searchResult: {/* 搜索结果数据 */}
-        //},
-        //{
-        //  id: 2,
-        //  imageUrl: '/static/images/food2.jpg',
-        //  foodName: 'Cola',
-        //  probability: 88,
-        //  date: '2025-04-09',
-        //  searchResult: {/* 搜索结果数据 */}
-        //},
-        //{
-        //  id: 3,
-        //  imageUrl: '/static/images/food3.jpg',
-        //  foodName: 'Salad',
-        //  probability: 92,
-        //  date: '2025-04-08',
-        //  searchResult: {/* 搜索结果数据 */}
-        //},
-        // 更多数据...
-      ]
+      // 用于显示的数据
+      historyData: [],
+      // 存储原始数据
+      rawHistoryData: []
     }
   },
 
@@ -101,32 +77,29 @@ export default {
             fail: reject
           });
         });
-        // console.log('获取识别历史成功：', res.data);
-        // 处理每条记录：选出概率最高的食物名和概率
+        
+        // 使用JSON方法进行深拷贝
+        this.rawHistoryData = JSON.parse(JSON.stringify(res.data));
+        console.log('rawHistoryData', this.rawHistoryData)
+        // 处理用于显示的数据
         const processedData = res.data.map(item => {
           const foodCandidates = item.foodCandidates || {};
           let maxProb = 0;
           let foodName = '非菜';
 
-          console.log('food', item)
-
           if (foodCandidates.result && foodCandidates.result.length > 0) {
-            // 设置主要结果
-            this.mainResult = foodCandidates.result[0]
-            console.log('foodCandidates.mainFesult:', this.mainResult)
-            maxProb = (parseFloat(this.mainResult.probability) * 100).toFixed(2)
-            foodName = this.mainResult.name
+            maxProb = (parseFloat(foodCandidates.result[0].probability) * 100).toFixed(2)
+            foodName = foodCandidates.result[0].name
           }
           
           return {
             id: item.id,
             imageURL: item.imageURL || '',
             foodName: foodName,
-            probability: maxProb,
+            probability: foodName === '非菜' ? null : maxProb,  // 如果是"非菜"，概率设为null
             date: item.createdAt.substring(0, 10)  // 截取日期部分
           };
         });
-        console.log('processedData', processedData)
 
         this.historyData = processedData;
 
@@ -155,11 +128,13 @@ export default {
     },
 
     navigateToResult(item) {
-      // 跳转到识别结果页面
-      uni.navigateTo({
-        //???
-        url: `/pages/identified-result/identified-result?imageURL=${item.imageURL}`
-      })
+      // 根据id找到对应的原始数据
+      const rawItem = this.rawHistoryData.find(raw => raw.id === item.id);
+      if (rawItem) {
+        uni.navigateTo({
+          url: `/pages/identified-result/identified-result?source=history&data=${encodeURIComponent(JSON.stringify(rawItem))}`
+        });
+      }
     }
   }
 }

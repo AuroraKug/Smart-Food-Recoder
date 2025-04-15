@@ -48,7 +48,7 @@ export default {
           const imagePath = res.tempImagePath;
           // 跳转到 identified-result 页面并传递图片路径
           uni.navigateTo({
-            url: `/pages/identified-result/identified-result?imageURL=${encodeURIComponent(imagePath)}`
+            url: `/pages/identified-result/identified-result?source=camera&imageURL=${encodeURIComponent(imagePath)}`
           });
         }
       });
@@ -63,7 +63,7 @@ export default {
         success: (res) => {
           const imagePath = res.tempFilePaths[0];
           uni.navigateTo({
-            url: `/pages/identified-result/identified-result?imagePath=${encodeURIComponent(imagePath)}`
+            url: `/pages/identified-result/identified-result?source=camera&imageURL=${encodeURIComponent(imagePath)}`
           });
         }
       });

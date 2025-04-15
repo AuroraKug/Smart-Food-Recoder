@@ -4,7 +4,7 @@
     <view class="data-row">
       <view class="data-item">
         <text>摄入</text>
-        <text class="cal-value">1,200</text>
+        <text class="cal-value">{{ totalCalories }}</text>
         <text>kcal</text>
       </view>
     </view>
@@ -12,7 +12,44 @@
 </template>
 
 <script>
+const BASE_URL = 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.com'
 
+export default {
+  data() {
+    return {
+      totalCalories: 0
+    }
+  },
+  mounted() {
+    this.fetchTodayCalories()
+  },
+  methods: {
+    async fetchTodayCalories() {
+      try {
+        const res = await new Promise((resolve, reject) => {
+          uni.request({
+            url: BASE_URL + '/api/food/record/today',
+            method: 'GET',
+            header: {
+              'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+              'Content-Type': 'application/json'
+            },
+            success: resolve,
+            fail: reject
+          });
+        });
+        
+        if (res.data && res.data.totalCalories !== undefined) {
+          this.totalCalories = res.data.totalCalories.toLocaleString()
+        }
+        console.log('totalCalories', this.totalCalories)
+      } catch (err) {
+        console.error('获取今日卡路里失败：', err)
+        this.totalCalories = '0'
+      }
+    }
+  }
+}
 </script>
 
 <style scoped>

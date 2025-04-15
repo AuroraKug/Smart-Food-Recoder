@@ -84,7 +84,7 @@
 
       <!-- 操作按钮 -->
       <view class="button-container">
-        <button class="action-button" @click="retakePhoto">重新拍摄</button>
+        <button class="action-button" @click="backToPreviousPage">{{ source === 'camera' ? '重新拍摄' : '返回' }}</button>
       </view>
     </view>
 
@@ -144,18 +144,58 @@ export default {
       hasLowProbability: false,
       selectedFood: null,
       weight: '100',
-      totalCalories: 0
+      totalCalories: 0,
+      source: 'camera' // 默认来源是相机
     }
   },
   onLoad(options) {
-    this.capturedImagePath = options.imageURL ? decodeURIComponent(options.imageURL) : ''
-    console.log('Captured Image Path:', this.capturedImagePath)
+    // 初始化基础UI设置
     const systemInfo = uni.getSystemInfoSync()
     const screenHeight = systemInfo.windowHeight
     this.minHeight = Math.floor(screenHeight * 0.3)
     this.maxHeight = Math.floor(screenHeight * 0.85)
     this.whiteboardHeight = this.minHeight
-    this.identifyFood()
+    
+    // 设置来源
+    this.source = options.source || 'camera'
+    
+    if (this.source === 'history') {
+      // 来自历史记录，解析并还原识别结果
+      const historyData = JSON.parse(decodeURIComponent(options.data))
+      this.capturedImagePath = historyData.imageURL
+      
+      // 处理 foodCandidates 数据
+      if (historyData.foodCandidates && historyData.foodCandidates.result) {
+        const results = historyData.foodCandidates.result
+        if (results.length > 0) {
+          // 设置主要结果
+          this.mainResult = {
+            name: results[0].name,
+            calorie: results[0].calorie,
+            probability: parseFloat(results[0].probability)
+          }
+          this.progress = (this.mainResult.probability * 100).toFixed(2)
+          
+          // 过滤其他结果（概率大于5%且不是"非菜"）
+          this.otherResults = results.slice(1)
+            .filter(item => parseFloat(item.probability) > 0.05 && item.name !== '非菜')
+            .map(item => ({
+              name: item.name,
+              calorie: item.calorie,
+              probability: parseFloat(item.probability)
+            }))
+          
+          // 检查是否有低概率结果
+          this.hasLowProbability = results.some(item => 
+            parseFloat(item.probability) <= 0.05
+          )
+        }
+      }
+    } else {
+      // 来自相机，需要调用识别接口
+      this.capturedImagePath = options.imageURL ? decodeURIComponent(options.imageURL) : ''
+      this.identifyFood()
+    }
   },
   methods: {
     handleTouchStart(event) {
@@ -232,7 +272,7 @@ export default {
         })
       }
     },
-    retakePhoto() {
+    backToPreviousPage() {
       uni.navigateBack()
     },
     showRecordPopup(food) {
