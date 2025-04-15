@@ -36,7 +36,12 @@ export default {
       // 用于显示的数据
       historyData: [],
       // 存储原始数据
-      rawHistoryData: []
+      rawHistoryData: [],
+      // 分页相关
+      currentPage: 0,
+      pageSize: 2,
+      hasMore: true,
+      isLoading: false
     }
   },
 
@@ -62,13 +67,27 @@ export default {
   onLoad() {
     this.fetchSearchHistory();
   },
+  // 添加触底加载更多
+  onReachBottom() {
+    if (this.hasMore && !this.isLoading) {
+      this.currentPage++
+      this.fetchSearchHistory()
+    }
+  },
   methods: {
     async fetchSearchHistory() {
+      if (this.isLoading) return
+      this.isLoading = true
+      
       try {
         const res = await new Promise((resolve, reject) => {
           uni.request({
             url: BASE_URL + '/api/photo/searchHistory',
             method: 'GET',
+            data: {
+              page: this.currentPage,
+              size: this.pageSize
+            },
             header: {
               'Authorization': 'Bearer ' + uni.getStorageSync('token'),
               'Content-Type': 'application/json'
@@ -78,33 +97,48 @@ export default {
           });
         });
         
-        // 使用JSON方法进行深拷贝
-        this.rawHistoryData = JSON.parse(JSON.stringify(res.data));
-        console.log('rawHistoryData', this.rawHistoryData)
-        // 处理用于显示的数据
-        const processedData = res.data.map(item => {
-          const foodCandidates = item.foodCandidates || {};
-          let maxProb = 0;
-          let foodName = '非菜';
-
-          if (foodCandidates.result && foodCandidates.result.length > 0) {
-            maxProb = (parseFloat(foodCandidates.result[0].probability) * 100).toFixed(2)
-            foodName = foodCandidates.result[0].name
-          }
+        if (res.statusCode === 200) {
+          const newData = res.data
           
-          return {
-            id: item.id,
-            imageURL: item.imageURL || '',
-            foodName: foodName,
-            probability: foodName === '非菜' ? null : maxProb,  // 如果是"非菜"，概率设为null
-            date: item.createdAt.substring(0, 10)  // 截取日期部分
-          };
-        });
+          // 如果是第一页，重置数据
+          if (this.currentPage === 0) {
+            this.rawHistoryData = JSON.parse(JSON.stringify(newData))
+            this.historyData = []
+          } else {
+            // 追加新数据到原始数据
+            this.rawHistoryData = [...this.rawHistoryData, ...JSON.parse(JSON.stringify(newData))]
+          }
 
-        this.historyData = processedData;
+          // 处理用于显示的数据
+          const processedData = newData.map(item => {
+            const foodCandidates = item.foodCandidates || {};
+            let maxProb = 0;
+            let foodName = '非菜';
 
+            if (foodCandidates.result && foodCandidates.result.length > 0) {
+              maxProb = (parseFloat(foodCandidates.result[0].probability) * 100).toFixed(2)
+              foodName = foodCandidates.result[0].name
+            }
+            
+            return {
+              id: item.id,
+              imageURL: item.imageURL || '',
+              foodName: foodName,
+              probability: foodName === '非菜' ? null : maxProb,
+              date: item.createdAt.substring(0, 10)
+            };
+          });
+
+          // 追加新处理的数据
+          this.historyData = [...this.historyData, ...processedData]
+          
+          // 判断是否还有更多数据
+          this.hasMore = newData.length === this.pageSize
+        }
       } catch (err) {
         console.error('获取识别历史失败：', err);
+      } finally {
+        this.isLoading = false
       }
     },
 
