@@ -2,7 +2,7 @@
   <view class="login-container">
     <view class="login-content">
       <image src="/static/logo.png" class="logo"></image>
-      <text class="welcome-text">欢迎使用智食记录</text>
+      <text class="welcome-text">欢迎使用智食记</text>
 
       <button class="wechat-login-btn" @click="login">
         <uni-icons type="weixin" size="24" color="#fff"></uni-icons>
