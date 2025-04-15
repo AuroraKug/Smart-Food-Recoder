@@ -148,7 +148,8 @@ export default {
     }
   },
   onLoad(options) {
-    this.capturedImagePath = options.imagePath ? decodeURIComponent(options.imagePath) : ''
+    this.capturedImagePath = options.imageURL ? decodeURIComponent(options.imageURL) : ''
+    console.log('Captured Image Path:', this.capturedImagePath)
     const systemInfo = uni.getSystemInfoSync()
     const screenHeight = systemInfo.windowHeight
     this.minHeight = Math.floor(screenHeight * 0.3)

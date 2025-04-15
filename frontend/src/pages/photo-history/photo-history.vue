@@ -16,7 +16,7 @@
           :key="index"
           @tap="navigateToResult(item)"
         >
-          <image class="food-image" :src="item.imageUrl" mode="aspectFill" />
+          <image class="food-image" :src="item.imageURL" mode="aspectFill" />
           <view class="probability">{{ item.probability }}%</view>
           <view class="food-name">{{ item.foodName }}</view>
         </view>
@@ -108,15 +108,8 @@ export default {
           let maxProb = 0;
           let foodName = '非菜';
 
-          // // 仅保留 key 是字符串、value 是 number 类型，排除像 log_id 这种字段
-          // for (const [name, prob] of Object.entries(foodCandidates)) {
-          //   if (typeof prob !== 'number') continue;  // ⛔ 跳过非数字的字段
+          console.log('food', item)
 
-          //   if (prob > maxProb) {
-          //     maxProb = prob;
-          //     foodName = name;
-          //   }
-          // }
           if (foodCandidates.result && foodCandidates.result.length > 0) {
             // 设置主要结果
             this.mainResult = foodCandidates.result[0]
@@ -124,16 +117,16 @@ export default {
             maxProb = (parseFloat(this.mainResult.probability) * 100).toFixed(2)
             foodName = this.mainResult.name
           }
-
-
+          
           return {
             id: item.id,
-            imageUrl: item.imageBase64 ? 'data:image/jpeg;base64,' + item.imageBase64 : '', // Base64转图片
+            imageURL: item.imageURL || '',
             foodName: foodName,
             probability: maxProb,
             date: item.createdAt.substring(0, 10)  // 截取日期部分
           };
         });
+        console.log('processedData', processedData)
 
         this.historyData = processedData;
 
@@ -162,11 +155,10 @@ export default {
     },
 
     navigateToResult(item) {
-      uni.setStorageSync('currentImage', item.imageBase64 ? 'data:image/jpeg;base64,' + item.imageBase64 : '')
       // 跳转到识别结果页面
       uni.navigateTo({
         //???
-        url: `/pages/identified-result/identified-result?id=${item.id}`
+        url: `/pages/identified-result/identified-result?imageURL=${item.imageURL}`
       })
     }
   }
