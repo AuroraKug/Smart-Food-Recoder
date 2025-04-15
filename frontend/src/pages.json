@@ -20,7 +20,8 @@
 				"navigationBarTitleText": "健康主页",
 				"navigationBarBackgroundColor": "#4CD964",
 				"navigationBarTextStyle": "white",
-				"enablePullDownRefresh": true
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 50
 			}
 		},
 		{
@@ -62,7 +63,9 @@
 			"style": {
 				"navigationBarTitleText": "个人信息",
 				"navigationBarBackgroundColor": "#4CD964",
-				"navigationBarTextStyle": "white"
+				"navigationBarTextStyle": "white",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 50
 			}
 		},
 		{
@@ -78,7 +81,9 @@
 			"style": {
 				"navigationBarTitleText": "饮食记录",
 				"navigationBarBackgroundColor": "#4CD964",
-				"navigationBarTextStyle": "white"
+				"navigationBarTextStyle": "white",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 50
 			}
 		},
 		{
@@ -86,7 +91,9 @@
 			"style": {
 				"navigationBarTitleText": "拍照历史",
 				"navigationBarBackgroundColor": "#4CD964",
-				"navigationBarTextStyle": "white"
+				"navigationBarTextStyle": "white",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 50
 			}
 		}
 	],

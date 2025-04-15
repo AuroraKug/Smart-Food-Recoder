@@ -17,7 +17,7 @@
     <view class="suggestion-list" v-if="showSuggestions && searchText">
       <view class="suggestion-item" v-for="(item, index) in suggestions" :key="index" @click="selectSuggestion(item)">
         <text class="suggestion-name">{{ item.name }}</text>
-        <text class="suggestion-calories">{{ item.calories }}卡/100克</text>
+        <text class="suggestion-calories">{{ item.calories }}千卡/100克</text>
       </view>
     </view>
   </view>

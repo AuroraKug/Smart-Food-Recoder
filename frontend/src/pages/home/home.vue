@@ -14,6 +14,7 @@ import HealthCard from './components/HealthCard.vue'
 import ButtonGroup from './components/ButtonGroup.vue'
 import RecentRecord from './components/RecentRecord.vue'
 import WeightChart from './components/WeightChart.vue'
+
 export default {
   components: {
     HealthCard,
@@ -37,6 +38,7 @@ export default {
         "HBuilder使用指南"
       ],
       suggestions: [],
+      isRefreshing: false
     }
   },
   methods: {
@@ -61,6 +63,17 @@ export default {
       this.searchText = item
       this.showSuggestions = false
       // 这里可以触发搜索，暂时不做具体处理
+    },
+    onPullDownRefresh() {
+      this.isRefreshing = true
+      // 发送各个组件的刷新事件
+      uni.$emit('refresh-weight-data') // 体重数据刷新
+      uni.$emit('refresh-health-data') // 健康数据刷新
+      uni.$emit('refresh-recent-records') // 最近记录刷新
+      setTimeout(() => {
+        this.isRefreshing = false
+        uni.stopPullDownRefresh()
+      }, 3000)
     }
   }
 }

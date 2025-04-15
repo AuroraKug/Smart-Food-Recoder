@@ -6,7 +6,7 @@
     </navigator>
 
     <view class="quick-actions">
-      <view class="action-item" @click="$refs.weightKeyboard.open(currentValue)">
+      <view class="action-item" @click="openWeightKeyboard">
         <uni-icons type="scale" size="20"></uni-icons>
         <text>记录体重</text>
       </view>
@@ -47,7 +47,7 @@
         </button>
       </view>
     </uni-popup> -->
-    <NumberKeyboard ref="weightKeyboard" field="currentValue" title="请输入当前体重" unit="kg" :max-length="5"
+    <NumberKeyboard ref="weightKeyboard" field="currentWeight" title="请输入当前体重" unit="kg" :max-length="5"
       :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" />
 
   </view>
@@ -55,23 +55,19 @@
 
 <script>
 import NumberKeyboard from '@/components/NumberKeyboard.vue'
+const BASE_URL = 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.com'
+
 export default {
   components: {
     NumberKeyboard
   },
-  props: {
-    lastWeight: {
-      type: Number,
-      default: null
-    },
-    initialWeightData: {
-      type: Array,
-      required: true
-    }
-  },
   data() {
     return {
-      currentValue: ''
+      weightData: {
+        startWeight: null,
+        currentWeight: null,
+        targetWeight: null
+      }
     }
   },
   computed: {
@@ -82,56 +78,68 @@ export default {
     }
   },
   methods: {
-    goToCamera() {
-      uni.navigateTo({
-        url: '/pages/camera/camera'
-      })
-    },
-    goToWater() {
-      uni.navigateTo({
-        url: '/pages/water/water'
-      })
-    },
-    showWeightInput() {
-      this.$nextTick(() => {
-        if (this.$refs.weightPopup) {
-          this.$refs.weightPopup.open()
+    async fetchWeightData() {
+      try {
+        const response = await new Promise((resolve, reject) => {
+          uni.request({
+            url: BASE_URL + '/api/weight/goal/getGoal',
+            method: 'GET',
+            header: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + uni.getStorageSync('token')
+            },
+            success: (res) => resolve(res),
+            fail: (err) => reject(err)
+          })
+        })
+
+        if (response.statusCode === 200) {
+          this.weightData = response.data
+          console.log('获取体重数据成功：', this.weightData)
         }
+      } catch (err) {
+        console.error('获取体重数据失败：', err)
+      }
+    },
+    async updateWeight(currentWeight) {
+      try {
+        const response = await new Promise((resolve, reject) => {
+          uni.request({
+            url: BASE_URL + '/api/weight/goal/save',
+            method: 'POST',
+            data: {
+              startWeight: this.weightData.startWeight,
+              currentWeight: currentWeight,
+              targetWeight: this.weightData.targetWeight
+            },
+            header: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + uni.getStorageSync('token')
+            },
+            success: (res) => resolve(res),
+            fail: (err) => reject(err)
+          })
+        })
+
+        if (response.statusCode === 200) {
+          console.log('更新体重成功：', response.data)
+          uni.showToast({ title: '更新成功', icon: 'success' })
+          this.weightData.currentWeight = currentWeight
+          uni.$emit('weight-updated', currentWeight)
+        }
+      } catch (err) {
+        console.error('更新体重失败：', err)
+        uni.showToast({ title: '更新失败', icon: 'none' })
+      }
+    },
+    openWeightKeyboard() {
+      this.fetchWeightData().then(() => {
+        this.$refs.weightKeyboard.open(parseFloat(this.weightData.currentWeight) || '')
       })
-    },
-    popupChange(e) {
-      this.$emit('popup-change', e.show)
-    },
-    closePopup() {
-      this.$refs.weightPopup.close()
-    },
-    inputNum(num) {
-      if (num === '.' && this.currentValue.includes('.')) return
-      if (this.currentValue.length >= 5) return
-
-      this.currentValue += num.toString()
-      if (num === '.' && !this.currentValue.includes('.')) {
-        this.currentValue += '0'
-      }
-    },
-    deleteNum() {
-      this.currentValue = this.currentValue.slice(0, -1);
-    },
-    confirmWeight() {
-      if (!this.isValid) {
-        uni.showToast({ title: '请输入有效体重', icon: 'none' })
-        return
-      }
-
-      const weight = parseFloat(this.currentValue)
-      this.$emit('confirm-weight', weight)
-      this.closePopup()
-
-      uni.showToast({ title: `成功记录: ${weight}kg`, icon: 'success' })
     },
     handleNumberConfirm({ field, value }) {
-      if (field === 'currentValue') {
-        this.currentValue = value
+      if (field === 'currentWeight') {
+        this.updateWeight(value)
       }
     }
   }

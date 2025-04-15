@@ -28,6 +28,17 @@ export default {
   created() {
     this.fetchRecentRecords()
   },
+  mounted() {
+    this.fetchRecentRecords()
+    // 监听最近记录刷新事件
+    uni.$on('refresh-recent-records', () => {
+      this.fetchRecentRecords()
+    })
+  },
+  beforeDestroy() {
+    // 移除事件监听
+    uni.$off('refresh-recent-records')
+  },
   methods: {
     async fetchRecentRecords() {
       try {

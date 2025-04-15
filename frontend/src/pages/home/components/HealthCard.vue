@@ -22,6 +22,14 @@ export default {
   },
   mounted() {
     this.fetchTodayCalories()
+    // 监听健康数据刷新事件
+    uni.$on('refresh-health-data', () => {
+      this.fetchTodayCalories()
+    })
+  },
+  beforeDestroy() {
+    // 移除事件监听
+    uni.$off('refresh-health-data')
   },
   methods: {
     async fetchTodayCalories() {
