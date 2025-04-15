@@ -39,7 +39,7 @@ export default {
       rawHistoryData: [],
       // 分页相关
       currentPage: 0,
-      pageSize: 2,
+      pageSize: 10,
       hasMore: true,
       isLoading: false
     }
@@ -98,19 +98,19 @@ export default {
         });
         
         if (res.statusCode === 200) {
-          const newData = res.data
+          const { records, totalElements, totalPages } = res.data
           
           // 如果是第一页，重置数据
           if (this.currentPage === 0) {
-            this.rawHistoryData = JSON.parse(JSON.stringify(newData))
+            this.rawHistoryData = [...records]
             this.historyData = []
           } else {
             // 追加新数据到原始数据
-            this.rawHistoryData = [...this.rawHistoryData, ...JSON.parse(JSON.stringify(newData))]
+            this.rawHistoryData = [...this.rawHistoryData, ...records]
           }
 
           // 处理用于显示的数据
-          const processedData = newData.map(item => {
+          const processedData = records.map(item => {
             const foodCandidates = item.foodCandidates || {};
             let maxProb = 0;
             let foodName = '非菜';
@@ -133,10 +133,14 @@ export default {
           this.historyData = [...this.historyData, ...processedData]
           
           // 判断是否还有更多数据
-          this.hasMore = newData.length === this.pageSize
+          this.hasMore = this.currentPage < totalPages - 1
         }
       } catch (err) {
         console.error('获取识别历史失败：', err);
+        uni.showToast({
+          title: '获取历史记录失败',
+          icon: 'none'
+        });
       } finally {
         this.isLoading = false
       }

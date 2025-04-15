@@ -19,7 +19,7 @@
         </view>
         <view class="profile-item" @click="$refs.heightKeyboard.open(parseFloat(profileData.height) || '')">
           <text class="label">身高</text>
-          <text class="value">{{ profileData.height ? profileData.height + 'cm' : '' }}</text>
+          <text class="value">{{ tempValues.height || (profileData.height ? profileData.height + 'cm' : '') }}</text>
           <uni-icons type="forward" size="16" color="#999"></uni-icons>
         </view>
         <!-- <view class="profile-item" @click="$refs.currentWeightKeyboard.open(parseFloat(profileData.currentWeight) || '')">
@@ -32,17 +32,17 @@
       <view class="profile-block">
         <view class="profile-item" @click="$refs.initialWeightKeyboard.open(parseFloat(profileData.initialWeight) || '')">
           <text class="label">初始体重</text>
-          <text class="value">{{ profileData.initialWeight ? profileData.initialWeight + 'kg' : '' }}</text>
+          <text class="value">{{ tempValues.initialWeight || (profileData.initialWeight ? profileData.initialWeight + 'kg' : '') }}</text>
           <uni-icons type="forward" size="16" color="#999"></uni-icons>
         </view>
         <view class="profile-item" @click="$refs.currentWeightKeyboard.open(parseFloat(profileData.currentWeight) || '')">
           <text class="label">当前体重</text>
-          <text class="value">{{ profileData.currentWeight ? profileData.currentWeight + 'kg' : '' }}</text>
+          <text class="value">{{ tempValues.currentWeight || (profileData.currentWeight ? profileData.currentWeight + 'kg' : '') }}</text>
           <uni-icons type="forward" size="16" color="#999"></uni-icons>
         </view>
         <view class="profile-item" @click="$refs.targetWeightKeyboard.open(parseFloat(weightGoal.targetWeight) || '')">
           <text class="label">目标体重</text>
-          <text class="value">{{ weightGoal.targetWeight ? weightGoal.targetWeight + 'kg' : '' }}</text>
+          <text class="value">{{ tempValues.targetWeight || (weightGoal.targetWeight ? weightGoal.targetWeight + 'kg' : '') }}</text>
           <uni-icons type="forward" size="16" color="#999"></uni-icons>
         </view>
       </view>
@@ -63,16 +63,16 @@
       <DatePicker ref="datePicker" :field="currentField" @save="handleDateSave" />
 
       <NumberKeyboard ref="heightKeyboard" field="height" title="请输入身高" unit="cm" :max-length="5" :range="[50, 250]"
-        :decimal-digits="1" @confirm="handleNumberConfirm" />
+        :decimal-digits="1" @confirm="handleNumberConfirm" @input="handleNumberInput" />
 
       <NumberKeyboard ref="currentWeightKeyboard" field="currentWeight" title="请输入当前体重" unit="kg" :max-length="5"
-        :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" />
+        :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" @input="handleNumberInput" />
 
       <NumberKeyboard ref="initialWeightKeyboard" field="initialWeight" title="请输入初始体重" unit="kg" :max-length="5"
-        :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" />
+        :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" @input="handleNumberInput" />
 
       <NumberKeyboard ref="targetWeightKeyboard" field="targetWeight" title="请输入目标体重" unit="kg" :max-length="5"
-        :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" />
+        :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" @input="handleNumberInput" />
 
       <!-- 自定义数字键盘弹窗 -->
     </view>
@@ -116,7 +116,13 @@ export default {
       dateRange: [[], [], []], // 年、月、日范围
       dateValue: [0, 0, 0], // 当前选中的年、月、日索引
       numberPadAnimation: '',
-      currentField: ''
+      currentField: '',
+      tempValues: {
+        height: null,
+        currentWeight: null,
+        initialWeight: null,
+        targetWeight: null
+      }
     };
   },
   onLoad() {
@@ -227,14 +233,9 @@ export default {
           })
         })
 
-        if (response.statusCode === 200) {
-          console.log('更新成功：', response.data)
-          uni.showToast({ title: '更新成功', icon: 'success' })
-          uni.$emit('weight-updated') // 发送体重更新事件
-        }
+        console.log('更新成功：', response.data)
       } catch (err) {
         console.error('更新失败：', err)
-        uni.showToast({ title: '更新失败', icon: 'none' })
       }
     },
     // 初始化日期范围
@@ -335,19 +336,30 @@ export default {
         this.profileData.initialDate = date
       }
     },
+    handleNumberInput({ field, value }) {
+      if (field === 'height') {
+        this.tempValues.height = value ? value + 'cm' : ''
+      } else if (field === 'currentWeight' || field === 'initialWeight' || field === 'targetWeight') {
+        this.tempValues[field] = value ? value + 'kg' : ''
+      }
+    },
     handleNumberConfirm({ field, value }) {
       console.log('NumberKeyboard confirm:', field, value);
       if (field === 'height') {
         this.profileData.height = value;
+        this.tempValues.height = null;
         console.log('Updated height:', this.profileData.height);
       } else if (field === 'currentWeight') {
         this.profileData.currentWeight = value;
+        this.tempValues.currentWeight = null;
         console.log('Updated currentWeight:', this.profileData.currentWeight);
       } else if (field === 'initialWeight') {
         this.profileData.initialWeight = value;
+        this.tempValues.initialWeight = null;
         console.log('Updated initialWeight:', this.profileData.initialWeight);
       } else if (field === 'targetWeight') {
         this.weightGoal.targetWeight = value;
+        this.tempValues.targetWeight = null;
         console.log('Updated targetWeight:', this.weightGoal.targetWeight);
       }
     }

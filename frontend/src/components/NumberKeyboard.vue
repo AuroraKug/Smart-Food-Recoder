@@ -75,7 +75,9 @@ export default {
   data() {
     return {
       showKeyboard: false,
-      currentValue: ''
+      currentValue: '',
+      originalValue: '',
+      isInputting: false
     }
   },
   computed: {
@@ -99,11 +101,14 @@ export default {
   },
   methods: {
     open(value = '') {
+      this.originalValue = value.toString()
       this.currentValue = value.toString()
+      this.isInputting = false
       this.showKeyboard = true
     },
 
     handleInput(char) {
+      this.isInputting = true
       // 处理数字输入
       const parts = this.currentValue.split('.')
 
@@ -119,6 +124,10 @@ export default {
       }
 
       this.currentValue += char
+      this.$emit('input', {
+        field: this.field,
+        value: this.currentValue
+      })
     },
 
     // 新增小数点处理方法
@@ -131,8 +140,13 @@ export default {
     },
 
     handleDelete() {
+      this.isInputting = true
       if (this.currentValue.length > 0) {
         this.currentValue = this.currentValue.slice(0, -1)
+        this.$emit('input', {
+          field: this.field,
+          value: this.currentValue
+        })
       }
     },
 
@@ -150,10 +164,19 @@ export default {
         value: finalValue,
         numericValue: parseFloat(finalValue)
       })
+      this.isInputting = false
       this.showKeyboard = false
     },
 
     handleClose() {
+      if (this.isInputting) {
+        this.currentValue = this.originalValue
+        this.$emit('input', {
+          field: this.field,
+          value: this.originalValue
+        })
+      }
+      this.isInputting = false
       this.showKeyboard = false
       this.$emit('close')
     }

@@ -48,7 +48,7 @@
       </view>
     </uni-popup> -->
     <NumberKeyboard ref="weightKeyboard" field="currentWeight" title="请输入当前体重" unit="kg" :max-length="5"
-      :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" />
+      :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" @input="handleNumberInput" />
 
   </view>
 </template>
@@ -67,7 +67,8 @@ export default {
         startWeight: null,
         currentWeight: null,
         targetWeight: null
-      }
+      },
+      tempWeight: null
     }
   },
   computed: {
@@ -137,9 +138,15 @@ export default {
         this.$refs.weightKeyboard.open(parseFloat(this.weightData.currentWeight) || '')
       })
     },
+    handleNumberInput({ field, value }) {
+      if (field === 'currentWeight') {
+        this.tempWeight = value
+      }
+    },
     handleNumberConfirm({ field, value }) {
       if (field === 'currentWeight') {
         this.updateWeight(value)
+        this.tempWeight = null
       }
     }
   }
