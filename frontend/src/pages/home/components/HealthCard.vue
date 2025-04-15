@@ -44,13 +44,12 @@ export default {
             },
             success: resolve,
             fail: reject
-          });
-        });
+          }) 
+        }) 
         
         if (res.data && res.data.totalCalories !== undefined) {
           this.totalCalories = res.data.totalCalories.toLocaleString()
         }
-        console.log('totalCalories', this.totalCalories)
       } catch (err) {
         console.error('获取今日卡路里失败：', err)
         this.totalCalories = '0'

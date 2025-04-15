@@ -56,7 +56,6 @@ export default {
   onLoad() {
     this.getUserProfile()
   },
-  // 添加下拉刷新
   onPullDownRefresh() {
     this.getUserProfile().finally(() => {
       uni.stopPullDownRefresh()
@@ -140,19 +139,6 @@ export default {
       uni.navigateTo({
         url:'/pages/photo-history/photo-history',
       })
-    },
-    navTo(page) {
-      const routes = {
-        weight: '/pages/weight/weight',
-        diet: '/pages/diet/diet',
-        achievement: '/pages/achievement/achievement',
-        info: '/pages/profile-info/profile-info',
-        target: '/pages/target/target',
-        reminder: '/pages/reminder/reminder'
-      }
-      if (routes[page]) {
-        uni.navigateTo({ url: routes[page] })
-      }
     },
     logout() {
       uni.showModal({

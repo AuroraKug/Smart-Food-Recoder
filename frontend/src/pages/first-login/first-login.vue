@@ -100,10 +100,10 @@ export default {
           itemList: ['男', '女'],
           success: (res) => {
             if (res.tapIndex !== undefined) {
-              this.userInfo.gender = res.tapIndex === 0 ? '男' : '女';
+              this.userInfo.gender = res.tapIndex === 0 ? '男' : '女' 
             }
           }
-        });
+        }) 
       }
     },
     openPicker(field) {

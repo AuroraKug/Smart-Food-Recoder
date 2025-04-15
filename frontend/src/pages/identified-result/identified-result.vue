@@ -48,15 +48,6 @@
         </view>
       </view>
 
-      <!-- 其他可能结果
-      <text class="title-font" v-if="otherResults.length > 0 && mainResult && mainResult.name !== '非菜'">其他可能结果</text>
-      <view class="other-results" v-if="otherResults.length > 0 && mainResult && mainResult.name !== '非菜'">
-        <view class="other-result-item" v-for="(item, index) in otherResults" :key="index">
-          <text class="other-food-name">{{ item.name }}</text>
-          <text class="other-food-calories">{{ item.calorie }}卡/100克</text>
-          <text class="other-probability">{{ (item.probability * 100).toFixed(2) }}%</text>
-        </view>
-      </view> -->
       <text class="title-font" v-if="otherResults.length > 0 && mainResult && mainResult.name !== '非菜'">其他可能结果</text>
       <view class="other-results" v-if="otherResults.length > 0 && mainResult && mainResult.name !== '非菜'">
         <view class="other-result-item" v-for="(item, index) in otherResults" :key="index">
@@ -145,7 +136,7 @@ export default {
       selectedFood: null,
       weight: '100',
       totalCalories: 0,
-      source: 'camera' // 默认来源是相机
+      source: 'camera' 
     }
   },
   onLoad(options) {
@@ -217,14 +208,10 @@ export default {
       }
     },
     getProgressColor(percent) {
-      // 将百分比转换为0-1之间的值
       const value = percent / 100
+            const startColor = { r: 220, g: 53, b: 69 } 
+      const endColor = { r: 70, g: 215, b: 105 } 
       
-      // 定义起始颜色（暗红色）和结束颜色（绿色）
-      const startColor = { r: 220, g: 53, b: 69 }  // 暗红色
-      const endColor = { r: 70, g: 215, b: 105 }   // #46d769
-      
-      // 计算当前颜色
       const r = Math.round(startColor.r + (endColor.r - startColor.r) * value)
       const g = Math.round(startColor.g + (endColor.g - startColor.g) * value)
       const b = Math.round(startColor.b + (endColor.b - startColor.b) * value)

@@ -65,7 +65,7 @@ export default {
     }
   },
   onLoad() {
-    this.fetchSearchHistory();
+    this.fetchSearchHistory()
   },
   // 添加触底加载更多
   onReachBottom() {
@@ -94,8 +94,8 @@ export default {
             },
             success: resolve,
             fail: reject
-          });
-        });
+          })
+        })
         
         if (res.statusCode === 200) {
           const { records, totalElements, totalPages } = res.data
@@ -111,9 +111,9 @@ export default {
 
           // 处理用于显示的数据
           const processedData = records.map(item => {
-            const foodCandidates = item.foodCandidates || {};
-            let maxProb = 0;
-            let foodName = '非菜';
+            const foodCandidates = item.foodCandidates || {}
+            let maxProb = 0
+            let foodName = '非菜'
 
             if (foodCandidates.result && foodCandidates.result.length > 0) {
               maxProb = (parseFloat(foodCandidates.result[0].probability) * 100).toFixed(2)
@@ -126,8 +126,8 @@ export default {
               foodName: foodName,
               probability: foodName === '非菜' ? null : maxProb,
               date: item.createdAt.substring(0, 10)
-            };
-          });
+            }
+          })
 
           // 追加新处理的数据
           this.historyData = [...this.historyData, ...processedData]
@@ -136,11 +136,11 @@ export default {
           this.hasMore = this.currentPage < totalPages - 1
         }
       } catch (err) {
-        console.error('获取识别历史失败：', err);
+        console.error('获取识别历史失败：', err)
         uni.showToast({
           title: '获取历史记录失败',
           icon: 'none'
-        });
+        })
       } finally {
         this.isLoading = false
       }
@@ -167,11 +167,11 @@ export default {
 
     navigateToResult(item) {
       // 根据id找到对应的原始数据
-      const rawItem = this.rawHistoryData.find(raw => raw.id === item.id);
+      const rawItem = this.rawHistoryData.find(raw => raw.id === item.id)
       if (rawItem) {
         uni.navigateTo({
           url: `/pages/identified-result/identified-result?source=history&data=${encodeURIComponent(JSON.stringify(rawItem))}`
-        });
+        })
       }
     }
   }

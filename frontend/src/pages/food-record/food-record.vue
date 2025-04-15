@@ -31,43 +31,7 @@ const BASE_URL = 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.
 export default {
   data() {
     return {
-      records: [
-        // {
-        //   foodName: "苹果",
-        //   caloriesPer100g: 52,
-        //   weight: 200,
-        //   recordTime: "2024-03-20 12:30",
-        //   totalCalories: 104
-        // },
-        // {
-        //   foodName: "米饭",
-        //   caloriesPer100g: 116,
-        //   weight: 150,
-        //   recordTime: "2024-03-20 18:15",
-        //   totalCalories: 174
-        // },
-        // {
-        //   foodName: "鸡胸肉",
-        //   caloriesPer100g: 165,
-        //   weight: 100,
-        //   recordTime: "2024-03-20 18:15",
-        //   totalCalories: 165
-        // },
-        // {
-        //   foodName: "西兰花",
-        //   caloriesPer100g: 34,
-        //   weight: 200,
-        //   recordTime: "2024-03-20 18:15",
-        //   totalCalories: 68
-        // },
-        // {
-        //   foodName: "牛奶",
-        //   caloriesPer100g: 54,
-        //   weight: 250,
-        //   recordTime: "2024-03-20 08:00",
-        //   totalCalories: 135
-        // }
-      ]
+      records: []
     }
   },
   onLoad() {

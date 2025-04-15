@@ -10,43 +10,8 @@
         <uni-icons type="scale" size="20"></uni-icons>
         <text>记录体重</text>
       </view>
-      <!-- <view class="action-item" @click="goToWater">
-        <uni-icons type="water" size="20"></uni-icons>
-        <text>喝水打卡</text>
-      </view> -->
     </view>
 
-    <!-- <uni-popup ref="weightPopup" type="bottom" @change="popupChange">
-      <view class="custom-weight-popup">
-        <view class="popup-header">
-          <text class="title">记录体重</text>
-          <uni-icons type="close" size="24" color="#999" @click="closePopup"></uni-icons>
-        </view>
-
-        <view class="weight-display">
-          <text class="value">{{ currentValue }}</text>
-          <text class="unit">kg</text>
-        </view>
-
-        <view class="number-pad">
-          <view
-            class="number-btn"
-            v-for="num in [1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0]"
-            :key="num"
-            @click="inputNum(num)"
-          >
-            {{ num }}
-          </view>
-          <view class="number-btn delete" @click="deleteNum">
-            <uni-icons type="back" size="24" color="#666"></uni-icons>
-          </view>
-        </view>
-
-        <button class="confirm-btn" :class="{ disabled: !isValid }" @click="confirmWeight">
-          确认记录
-        </button>
-      </view>
-    </uni-popup> -->
     <NumberKeyboard ref="weightKeyboard" field="currentWeight" title="请输入当前体重" unit="kg" :max-length="5"
       :range="[30, 200]" :decimal-digits="1" @confirm="handleNumberConfirm" @input="handleNumberInput" />
 
@@ -96,7 +61,6 @@ export default {
 
         if (response.statusCode === 200) {
           this.weightData = response.data
-          console.log('获取体重数据成功：', this.weightData)
         }
       } catch (err) {
         console.error('获取体重数据失败：', err)
@@ -123,7 +87,6 @@ export default {
         })
 
         if (response.statusCode === 200) {
-          console.log('更新体重成功：', response.data)
           uni.showToast({ title: '更新成功', icon: 'success' })
           this.weightData.currentWeight = currentWeight
           uni.$emit('weight-updated', currentWeight)

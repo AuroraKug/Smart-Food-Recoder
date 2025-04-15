@@ -22,12 +22,9 @@ export default {
             provider: 'weixin',
             success: resolve,
             fail: reject
-          });
-        });
+          })
+        })
 
-        console.log('微信code:', loginRes.code);
-
-        // 用 Promise 包装 uni.request，解决不能 await 的问题
         const response = await new Promise((resolve, reject) => {
           uni.request({
             url: 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.com/api/auth/login',
@@ -40,8 +37,8 @@ export default {
             },
             success: (res) => resolve(res),
             fail: (err) => reject(err)
-          });
-        });
+          })
+        })
 
         if (response.statusCode === 200) {
           const {token, openid ,if_first_login} = response.data;
@@ -51,35 +48,27 @@ export default {
 
           uni.showToast({
             title: '登录成功'
-          });
+          })
 
-          // uni.switchTab({
-          //   url: '/pages/home/home'
-          // });
-          // uni.navigateTo({
-          //   url: '/pages/first-login/first-login'
-          // });
           if (if_first_login === true) {
-    // 首次登录，跳转到首次信息填写页
             uni.navigateTo({
               url: '/pages/first-login/first-login'
-            });
+            })
           } else {
-            // 非首次登录，跳转到首页
             uni.switchTab({
               url: '/pages/home/home'
-            });
+            })
           }
 
         } else {
-          throw new Error(response.data.message || '登录失败');
+          throw new Error(response.data.message || '登录失败')
         }
       } catch (err) {
-        console.error('登录出错:', err);
+        console.error('登录出错:', err)
         uni.showToast({
           title: err.message || '登录失败',
           icon: 'none'
-        });
+        })
       }
     }
   }

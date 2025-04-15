@@ -152,8 +152,8 @@ export default {
         return
       }
 
-      console.log(this.selectedFood);
-      console.log(this.weight);
+      console.log(this.selectedFood) 
+      console.log(this.weight) 
       try {
         const now = new Date()
         const recordTime = now.getFullYear() + '-' +

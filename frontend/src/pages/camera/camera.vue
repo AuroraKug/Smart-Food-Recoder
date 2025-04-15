@@ -41,39 +41,39 @@ export default {
   },
   methods: {
     takePhoto() {
-      const ctx = uni.createCameraContext(this);
+      const ctx = uni.createCameraContext(this) 
       ctx.takePhoto({
         quality: 'high',
         success: (res) => {
-          const imagePath = res.tempImagePath;
+          const imagePath = res.tempImagePath 
           // 跳转到 identified-result 页面并传递图片路径
           uni.navigateTo({
             url: `/pages/identified-result/identified-result?source=camera&imageURL=${encodeURIComponent(imagePath)}`
-          });
+          }) 
         }
-      });
+      }) 
     },
     switchCamera() {
-      this.devicePosition = this.devicePosition === 'back' ? 'front' : 'back';
+      this.devicePosition = this.devicePosition === 'back' ? 'front' : 'back' 
     },
     chooseImage() {
       uni.chooseImage({
         count: 1,
         sourceType: ['album'],
         success: (res) => {
-          const imagePath = res.tempFilePaths[0];
+          const imagePath = res.tempFilePaths[0] 
           uni.navigateTo({
             url: `/pages/identified-result/identified-result?source=camera&imageURL=${encodeURIComponent(imagePath)}`
-          });
+          }) 
         }
-      });
+      }) 
     },
     cameraError(e) {
-      console.error('相机错误:', e.detail);
+      console.error('相机错误:', e.detail) 
       uni.showToast({
         title: '相机初始化失败',
         icon: 'none'
-      });
+      }) 
     }
   }
 }

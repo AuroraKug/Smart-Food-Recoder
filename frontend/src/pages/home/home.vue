@@ -26,43 +26,12 @@ export default {
   data() {
     return {
       isCanvasVisible: true,
-      searchText: '',
-      staticSuggestions: [
-        "Uniapp开发教程",
-        "Vue3入门",
-        "微信小程序",
-        "前端开发",
-        "JavaScript高级编程",
-        "CSS技巧",
-        "移动端适配",
-        "HBuilder使用指南"
-      ],
-      suggestions: [],
       isRefreshing: false
     }
   },
   methods: {
     toggleCanvas(visible) {
-      this.isCanvasVisible = visible // 切换 canvas 的显示状态
-    },
-    // 输入处理
-    handleInput() {
-      if (this.searchText) {
-        this.showSuggestions = true
-        // 简单过滤静态数据作为建议
-        this.suggestions = this.staticSuggestions.filter(item =>
-          item.toLowerCase().includes(this.searchText.toLowerCase())
-        )
-      } else {
-        this.showSuggestions = false
-      }
-    },
-
-    // 选择建议项
-    selectSuggestion(item) {
-      this.searchText = item
-      this.showSuggestions = false
-      // 这里可以触发搜索，暂时不做具体处理
+      this.isCanvasVisible = visible
     },
     onPullDownRefresh() {
       this.isRefreshing = true

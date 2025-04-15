@@ -22,11 +22,6 @@
           <text class="value">{{ tempValues.height || (profileData.height ? profileData.height + 'cm' : '') }}</text>
           <uni-icons type="forward" size="16" color="#999"></uni-icons>
         </view>
-        <!-- <view class="profile-item" @click="$refs.currentWeightKeyboard.open(parseFloat(profileData.currentWeight) || '')">
-          <text class="label">当前体重</text>
-          <text class="value">{{ profileData.currentWeight ? profileData.currentWeight + 'kg' : '' }}</text>
-          <uni-icons type="forward" size="16" color="#999"></uni-icons>
-        </view> -->
       </view>
 
       <view class="profile-block">
@@ -47,13 +42,6 @@
         </view>
       </view>
 
-      <!-- <view class="profile-block">
-        <view class="profile-item" @click="openPicker('initial')">
-          <text class="label">初始日期</text>
-          <text class="value">{{ profileData.initialDate }}</text>
-          <uni-icons type="forward" size="16" color="#999"></uni-icons>
-        </view>
-      </view> -->
 
       <!-- 底部保存按钮 -->
       <view class="save-button-container">
@@ -169,7 +157,6 @@ export default {
         }
 
         if (weightResponse.statusCode === 200) {
-          console.log('体重目标信息：', weightResponse.data);
           this.weightGoal = weightResponse.data;
           this.profileData.initialWeight = this.weightGoal.startWeight || 0;
           this.profileData.currentWeight = this.weightGoal.currentWeight || 0;
@@ -192,28 +179,21 @@ export default {
             },
             header: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + uni.getStorageSync('token')  // ✅ 加上这行
+              'Authorization': 'Bearer ' + uni.getStorageSync('token')  
             },
             success: (res) => resolve(res),
             fail: (err) => reject(err)
           })
         })
 
-        
-
-        console.log('更新成功：', response.data)
-        await this.fetchUserInfo(); // ✅ 自动刷新页面数据
+      
+        await this.fetchUserInfo(); 
       } catch (err) {
         console.error('更新失败：', err)
       }
     },
     async updateUserWeightGoal(){
       try {
-        console.log('保存前的体重数据：', {
-          startWeight: this.profileData.initialWeight,
-          currentWeight: this.profileData.currentWeight,
-          targetWeight: this.weightGoal.targetWeight
-        });
 
         const response = await new Promise((resolve, reject) => {
           uni.request({
@@ -233,7 +213,6 @@ export default {
           })
         })
 
-        console.log('更新成功：', response.data)
       } catch (err) {
         console.error('更新失败：', err)
       }
@@ -320,7 +299,6 @@ export default {
       this.numberPadAnimation = show ? 'slide-in' : 'slide-out';
     },
     saveProfile() {
-      console.log('保存数据:', this.profileData);
       uni.showToast({ title: '保存成功', icon: 'success', duration: 2000 });
       this.updateUserInfo();
       this.updateUserWeightGoal();
@@ -344,23 +322,18 @@ export default {
       }
     },
     handleNumberConfirm({ field, value }) {
-      console.log('NumberKeyboard confirm:', field, value);
       if (field === 'height') {
         this.profileData.height = value;
         this.tempValues.height = null;
-        console.log('Updated height:', this.profileData.height);
       } else if (field === 'currentWeight') {
         this.profileData.currentWeight = value;
         this.tempValues.currentWeight = null;
-        console.log('Updated currentWeight:', this.profileData.currentWeight);
       } else if (field === 'initialWeight') {
         this.profileData.initialWeight = value;
         this.tempValues.initialWeight = null;
-        console.log('Updated initialWeight:', this.profileData.initialWeight);
       } else if (field === 'targetWeight') {
         this.weightGoal.targetWeight = value;
         this.tempValues.targetWeight = null;
-        console.log('Updated targetWeight:', this.weightGoal.targetWeight);
       }
     }
   }
