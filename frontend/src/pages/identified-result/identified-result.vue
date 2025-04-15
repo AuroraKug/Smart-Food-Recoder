@@ -43,7 +43,7 @@
           <text class="label">热量</text>
           <view class="value-wrapper">
             <text class="value">{{ mainResult ? mainResult.calorie : '--' }}</text>
-            <text class="unit">卡/100克</text>
+            <text class="unit">千卡/100克</text>
           </view>
         </view>
       </view>
@@ -54,7 +54,7 @@
           <view class="result-row">
             <view class="name-calories">
               <text class="other-food-name">{{ item.name }}</text>
-              <text class="other-food-calories">{{ item.calorie }}卡/100克</text>
+              <text class="other-food-calories">{{ item.calorie }}千卡/100克</text>
             </view>
             <view class="prob-action">
               <text class="other-probability">{{ (item.probability * 100).toFixed(2) }}%</text>
@@ -89,7 +89,7 @@
         <view class="popup-content">
           <view class="food-info">
             <text class="food-name">{{ selectedFood ? selectedFood.name : '' }}</text>
-            <text class="food-calories">{{ selectedFood ? selectedFood.calorie : 0 }}卡/100克</text>
+            <text class="food-calories">{{ selectedFood ? selectedFood.calorie : 0 }}千卡/100克</text>
           </view>
           <view class="weight-input">
             <text class="label">食用重量</text>
@@ -105,7 +105,7 @@
           </view>
           <view class="total-calories">
             <text class="label">总卡路里</text>
-            <text class="value">{{ totalCalories }}卡</text>
+            <text class="value">{{ totalCalories }}千卡</text>
           </view>
         </view>
         <view class="popup-footer">
