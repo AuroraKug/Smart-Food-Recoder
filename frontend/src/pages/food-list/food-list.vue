@@ -3,10 +3,10 @@
     <view class="food-list-container">
       <view class="food-list-title">{{ searchKeyword ? '搜索结果' : '食物列表' }}</view>
       <view class="food-item" v-for="(food, index) in foodList" :key="index">
-        <image :src="food.image" class="food-image" mode="widthFix"></image>
+        <!-- <image :src="food.image" class="food-image" mode="widthFix"></image> -->
         <view class="food-info">
           <text class="food-name">{{ food.name }}</text>
-          <text class="food-calories">{{ food.calories }}卡/100克</text>
+          <text class="food-calories">{{ food.calories }}千卡/100克</text>
         </view>
         <view class="add-button" @click="showRecordPopup(food)">
           <uni-icons type="plus" size="24" color="#4cd964"></uni-icons>
@@ -24,7 +24,7 @@
         <view class="popup-content">
           <view class="food-info">
             <text class="food-name">{{ selectedFood ? selectedFood.name : '' }}</text>
-            <text class="food-calories">{{ selectedFood ? selectedFood.calories : 0 }}卡/100克</text>
+            <text class="food-calories">{{ selectedFood ? selectedFood.calories : 0 }}千卡/100克</text>
           </view>
           <view class="weight-input">
             <text class="label">食用重量</text>
