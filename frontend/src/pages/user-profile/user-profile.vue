@@ -3,28 +3,12 @@
     <!-- 用户信息卡片 -->
     <view class="profile-card">
       <view class="avatar-section">
-        <image class="avatar" :src="userInfo.avatar || '/static/default-avatar.png'"></image>
+        <image class="avatar" :src="userInfo.avatar"></image>
       </view>
       <view class="info-section">
-        <text class="name">{{ userInfo.nickname || '未设置昵称' }}</text>
+        <text class="name">{{ userInfo.nickname }}</text>
       </view>
     </view>
-
-    <!-- 数据统计 -->
-    <!-- <view class="data-card">
-      <view class="data-item" @click="navTo('weight')">
-        <text class="value">{{ userData.weight || '--' }}</text>
-        <text class="label">当前体重(kg)</text>
-      </view>
-      <view class="data-item" @click="navTo('diet')">
-        <text class="value">{{ userData.days || 0 }}</text>
-        <text class="label">坚持天数</text>
-      </view>
-      <view class="data-item" @click="navTo('achievement')">
-        <text class="value">{{ userData.achievements || 0 }}</text>
-        <text class="label">成就徽章</text>
-      </view>
-    </view> -->
 
     <!-- 设置列表 -->
     <view class="settings-list">
@@ -53,6 +37,8 @@
 </template>
 
 <script>
+const BASE_URL = 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.com'
+
 export default {
   data() {
     return {
@@ -70,34 +56,65 @@ export default {
   onLoad() {
     this.getUserProfile()
   },
+  // 添加下拉刷新
+  onPullDownRefresh() {
+    this.getUserProfile().finally(() => {
+      uni.stopPullDownRefresh()
+    })
+  },
   methods: {
     // 获取用户信息
-    getUserProfile() {
-      // 检查是否已授权
-      uni.getSetting({
-        success: (res) => {
-          if (res.authSetting['scope.userInfo']) {
-            // 已经授权，可以直接调用 getUserInfo 获取头像昵称
-            this.getUserInfo()
-          } else {
-            // 未授权，调用微信登录接口
-            uni.getUserProfile({
-              desc: '用于完善用户资料',
-              success: (res) => {
-                this.userInfo.avatar = res.userInfo.avatarUrl
-                this.userInfo.nickname = res.userInfo.nickName
-              },
-              fail: (err) => {
-                console.error('获取用户信息失败', err)
-                uni.showToast({
-                  title: '获取用户信息失败',
-                  icon: 'none'
-                })
-              }
-            })
-          }
+    async getUserProfile() {
+      try {
+        // 获取后端用户信息
+        const res = await new Promise((resolve, reject) => {
+          uni.request({
+            url: BASE_URL + '/api/user/info',
+            method: 'GET',
+            header: {
+              'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+              'Content-Type': 'application/json'
+            },
+            success: resolve,
+            fail: reject
+          });
+        });
+
+        if (res.statusCode === 200) {
+          this.userInfo.nickname = res.data.userName
         }
-      })
+
+        // 检查是否已授权
+        uni.getSetting({
+          success: (res) => {
+            if (res.authSetting['scope.userInfo']) {
+              // 已经授权，可以直接调用 getUserInfo 获取头像
+              this.getUserInfo()
+            } else {
+              // 未授权，调用微信登录接口
+              uni.getUserProfile({
+                desc: '用于完善用户资料',
+                success: (res) => {
+                  this.userInfo.avatar = res.userInfo.avatarUrl
+                },
+                fail: (err) => {
+                  console.error('获取用户信息失败', err)
+                  uni.showToast({
+                    title: '获取用户信息失败',
+                    icon: 'none'
+                  })
+                }
+              })
+            }
+          }
+        })
+      } catch (err) {
+        console.error('获取用户信息失败：', err);
+        uni.showToast({
+          title: '获取用户信息失败',
+          icon: 'none'
+        });
+      }
     },
 
     // 获取已授权的用户信息
@@ -105,7 +122,6 @@ export default {
       uni.getUserInfo({
         success: (res) => {
           this.userInfo.avatar = res.userInfo.avatarUrl
-          this.userInfo.nickname = res.userInfo.nickName
         }
       })
     },
