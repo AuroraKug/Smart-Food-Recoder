@@ -218,41 +218,140 @@ export default {
       
       return `rgb(${r}, ${g}, ${b})`
     },
+    // async identifyFood() {
+    //   try {
+    //     const envId = 'prod-0gm3nrfmdbf62bd3' // 例如：cloud1-xxx
+    //     const serviceName = 'springboot-glwv' // 例如：springboot-glwv
+    //     const path = '/api/photo'
+
+    //     const uploadUrl = `https://${envId}.${serviceName}.app.tcloudbase.com${path}`
+
+    //     const response = await new Promise((resolve, reject) => {
+    //       wx.uploadFile({
+    //         url: uploadUrl,
+    //         filePath: this.capturedImagePath,
+    //         name: 'file',
+    //         header: {
+    //           'Authorization': 'Bearer ' + uni.getStorageSync('token')
+    //         },
+    //         success: (res) => resolve(res),
+    //         fail: (err) => reject(err)
+    //       })
+    //     })
+
+    //     if (response.statusCode === 200) {
+    //       const data = JSON.parse(response.data)
+    //       if (data.result && data.result.length > 0) {
+    //         this.mainResult = data.result[0]
+    //         this.progress = (this.mainResult.probability * 100).toFixed(2)
+
+    //         this.otherResults = data.result.slice(1).filter(item =>
+    //           parseFloat(item.probability) > 0.05 && item.name !== '非菜'
+    //         )
+
+    //         this.hasLowProbability = data.result.some(item =>
+    //           parseFloat(item.probability) <= 0.05
+    //         )
+    //       }
+    //     }
+
+    //   } catch (err) {
+    //     console.error('识别失败：', err)
+    //     uni.showToast({ title: '识别失败', icon: 'none' })
+    //   }
+    // },
+
+    // async identifyFood() {
+    //   try {
+    //     const fs = wx.getFileSystemManager();
+    //     const base64 = await new Promise((resolve, reject) => {
+    //       fs.readFile({
+    //         filePath: this.capturedImagePath,
+    //         encoding: 'base64',
+    //         success: res => resolve(res.data),
+    //         fail: err => reject(err)
+    //       });
+    //     });
+
+    //     const response = await wx.cloud.callContainer({
+    //       config: {
+    //         env: 'prod-0gm3nrfmdbf62bd3', // ✅ 你的云托管环境 ID
+    //       },
+    //       path: '/api/photo/photo-base64',       // ✅ 新增的 base64 后端接口路径
+    //       method: 'POST',
+    //       header: {
+    //         'X-WX-SERVICE': 'springboot-glwv',
+    //         'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+    //         'content-type': 'application/json',
+    //       },
+    //       data: {
+    //         imageBase64: base64
+    //       }
+    //     });
+
+    //     if (response?.data?.result && response.data.result.length > 0) {
+    //       this.mainResult = response.data.result[0];
+    //       this.progress = (this.mainResult.probability * 100).toFixed(2);
+
+    //       this.otherResults = response.data.result.slice(1).filter(item =>
+    //         parseFloat(item.probability) > 0.05 && item.name !== '非菜'
+    //       );
+
+    //       this.hasLowProbability = response.data.result.some(item =>
+    //         parseFloat(item.probability) <= 0.05
+    //       );
+    //     }
+
+    //   } catch (err) {
+    //     console.error('识别失败：', JSON.stringify(err, null, 2))
+    //     uni.showToast({
+    //       title: '识别失败',
+    //       icon: 'none'
+    //     })
+    //   }
+    // },
     async identifyFood() {
       try {
-        const envId = 'prod-0gm3nrfmdbf62bd3' // 例如：cloud1-xxx
-        const serviceName = 'springboot-glwv' // 例如：springboot-glwv
-        const path = '/api/photo'
+        const serviceName = 'springboot-glwv' // ⚠️ 替换为你的实际服务名称
 
-        const uploadUrl = `https://${envId}.${serviceName}.app.tcloudbase.com${path}`
-
-        const response = await new Promise((resolve, reject) => {
-          wx.uploadFile({
-            url: uploadUrl,
-            filePath: this.capturedImagePath,
-            name: 'file',
-            header: {
-              'Authorization': 'Bearer ' + uni.getStorageSync('token')
-            },
-            success: (res) => resolve(res),
-            fail: (err) => reject(err)
-          })
+        // 1️⃣ 上传图片到微信云存储（Cloud File Storage）
+        const uploadRes = await wx.cloud.uploadFile({
+          cloudPath: `food-images/${Date.now()}-${Math.floor(Math.random() * 10000)}.jpg`,
+          filePath: this.capturedImagePath // 本地图片路径（小程序拍照得到的）
         })
 
-        if (response.statusCode === 200) {
-          const data = JSON.parse(response.data)
-          if (data.result && data.result.length > 0) {
-            this.mainResult = data.result[0]
-            this.progress = (this.mainResult.probability * 100).toFixed(2)
+        const fileID = uploadRes.fileID
+        console.log('上传成功 fileID:', fileID)
 
-            this.otherResults = data.result.slice(1).filter(item =>
-              parseFloat(item.probability) > 0.05 && item.name !== '非菜'
-            )
-
-            this.hasLowProbability = data.result.some(item =>
-              parseFloat(item.probability) <= 0.05
-            )
+        // 2️⃣ 使用 callContainer 请求后端识别接口
+        const response = await wx.cloud.callContainer({
+          path: '/api/photo/photo-by-fileid',
+          method: 'POST',
+          data: {
+            fileID: fileID
+          },
+          header: {
+            'X-WX-SERVICE': serviceName,
+            'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+            'Content-Type': 'application/json'
           }
+        })
+
+        // 3️⃣ 解析识别结果（与原来逻辑一致）
+        const result = response.data
+        if (result?.result && result.result.length > 0) {
+          this.mainResult = result.result[0]
+          this.progress = (this.mainResult.probability * 100).toFixed(2)
+
+          this.otherResults = result.result.slice(1).filter(item =>
+            parseFloat(item.probability) > 0.05 && item.name !== '非菜'
+          )
+
+          this.hasLowProbability = result.result.some(item =>
+            parseFloat(item.probability) <= 0.05
+          )
+        } else {
+          throw new Error('识别失败或未识别到食物')
         }
 
       } catch (err) {
@@ -260,6 +359,7 @@ export default {
         uni.showToast({ title: '识别失败', icon: 'none' })
       }
     },
+
 
     backToPreviousPage() {
       uni.navigateBack()
