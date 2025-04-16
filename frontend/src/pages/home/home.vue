@@ -42,7 +42,7 @@ export default {
       setTimeout(() => {
         this.isRefreshing = false
         uni.stopPullDownRefresh()
-      }, 3000)
+      }, 1000)
     }
   }
 }

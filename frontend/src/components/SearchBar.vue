@@ -24,7 +24,6 @@
 </template>
 
 <script>
-const BASE_URL = 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.com'
 
 export default {
   props: {
@@ -61,16 +60,13 @@ export default {
         if (this.searchText) {
           try {
             const response = await wx.cloud.callContainer({
-              path: '/api/food/search', // 不需要带 BASE_URL
+              path: `/api/food/search?keyword=${encodeURIComponent(this.searchText)}`, // 拼接搜索关键词
               method: 'GET',
               header: {
                 'X-WX-SERVICE': 'springboot-glwv', // ⚠️ 替换为你的云托管服务名
                 'Authorization': 'Bearer ' + uni.getStorageSync('token'),
                 'Content-Type': 'application/json'
-              },
-              // callContainer 的 GET 请求参数不能直接写 data，要拼接在 path 后面
-              // 所以要用 `path` 拼接参数
-              // 示例：/api/food/search?keyword=苹果
+              }
             })
 
             if (response.statusCode === 200) {

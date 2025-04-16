@@ -80,7 +80,7 @@
     </view>
 
     <!-- 记录弹窗 -->
-    <uni-popup ref="recordPopup" type="center">
+    <uni-popup ref="recordPopup" type="center" :animation="false">
       <view class="record-popup">
         <view class="popup-header">
           <text class="popup-title">记录食物</text>

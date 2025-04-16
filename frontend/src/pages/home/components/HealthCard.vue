@@ -43,7 +43,6 @@ export default {
             'Content-Type': 'application/json'
           }
         })
-        console.log('获取今日卡路里：', res)
         if (res.data && res.data.totalCalories !== undefined) {
           this.totalCalories = res.data.totalCalories.toLocaleString()
         } else {

@@ -2,7 +2,6 @@
   <view class="weight-progress-section">
     <view class="progress-wrapper">
       <view class="progress-container">
-        <canvas canvas-id="progressCanvas" class="progress-canvas"></canvas>
         <view class="progress-info">
           <view class="progress-value" v-if="!isGoalAchieved">
             {{ weightChange }}<text class="unit">kg</text>
@@ -27,12 +26,6 @@
 <script>
 const BASE_URL = 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.com'
 export default {
-  props: {
-    isCanvasVisible: {
-      type: Boolean,
-      default: true
-    }
-  },
   data() {
     return {
       initialWeight: 68.5,
@@ -48,27 +41,6 @@ export default {
   computed: {
     weightChange() {
       return Math.abs(this.initialWeight - this.currentWeight).toFixed(1)
-    },
-    progressPercentage() {
-      const total = Math.abs(this.initialWeight - this.targetWeight)
-      const current = Math.abs(this.initialWeight - this.currentWeight)
-      
-      // 判断是增重还是减重目标
-      const isWeightGain = this.targetWeight > this.initialWeight
-      
-      if (isWeightGain) {
-        // 增重目标
-        if (this.currentWeight < this.initialWeight) {
-          return 0 // 如果当前体重小于初始体重，进度为0
-        }
-        return Math.min(100, Math.max(0, (current / total) * 100))
-      } else {
-        // 减重目标
-        if (this.currentWeight > this.initialWeight) {
-          return 0 // 如果当前体重大于初始体重，进度为0
-        }
-        return Math.min(100, Math.max(0, (current / total) * 100))
-      }
     },
     isGoalAchieved() {
       if (this.targetWeight > this.initialWeight) {
@@ -116,61 +88,9 @@ export default {
         console.error('获取体重数据失败：', err)
       }
     },
-
-    drawProgressCircle() {
-      const query = uni.createSelectorQuery().in(this)
-      query.select('.progress-container').boundingClientRect((rect) => {
-        if (!rect) return
-
-        const width = rect.width
-        const height = rect.height
-        const centerX = width / 2
-        const centerY = height / 2
-        const radius = Math.min(width, height) / 3
-        const lineWidth = Math.min(12, radius / 10)
-        const ctx = uni.createCanvasContext('progressCanvas', this)
-        ctx.clearRect(0, 0, width, height)
-
-        // 绘制背景圆
-        ctx.beginPath()
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2, false)
-        ctx.setStrokeStyle('#f0f0f0')
-        ctx.setLineWidth(lineWidth)
-        ctx.setLineCap('round')
-        ctx.stroke()
-
-        // 绘制进度圆
-        const endAngle = (Math.PI * 2 * this.progressPercentage / 100)
-        ctx.beginPath()
-        ctx.arc(centerX, centerY, radius, -Math.PI / 2, -Math.PI / 2 + endAngle, false)
-        ctx.setStrokeStyle(this.isGoalAchieved ? '#4cd964' : '#4cd964')
-        ctx.setLineWidth(lineWidth)
-        ctx.setLineCap('round')
-        ctx.stroke()
-
-        // 绘制进度点
-        const dotX = centerX + radius * Math.cos(-Math.PI / 2 + endAngle)
-        const dotY = centerY + radius * Math.sin(-Math.PI / 2 + endAngle)
-        ctx.beginPath()
-        ctx.arc(dotX, dotY, lineWidth / 2, 0, Math.PI * 2)
-        ctx.setFillStyle(this.isGoalAchieved ? '#4cd964' : '#4cd964')
-        ctx.fill()
-
-        ctx.draw()
-      }).exec()
-    }
   },
   mounted() {
     this.getWeightData()
-    this.drawProgressCircle()
-    uni.getSystemInfo({
-      success: (res) => {
-        this.windowWidth = res.windowWidth
-      }
-    })
-    uni.onWindowResize(() => {
-      this.drawProgressCircle()
-    })
     // 监听体重更新事件
     uni.$on('weight-updated', () => {
       this.getWeightData()
@@ -185,11 +105,6 @@ export default {
     uni.$off('weight-updated')
     uni.$off('refresh-weight-data')
   },
-  watch: {
-    currentWeight() {
-      this.drawProgressCircle()
-    }
-  }
 }
 </script>
 
@@ -208,30 +123,19 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 260rpx;
+  min-height: 150rpx;
 }
 
 .progress-container {
   position: relative;
-  width: 100%;
-  padding-top: 43.33%;
-  background: transparent;
-}
-
-.progress-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100% !important;
-  height: 100% !important;
-  display: block;
+  width: auto;
+  padding-top: 0;
+  text-align: center;
 }
 
 .progress-info {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: static;
+  transform: none;
   text-align: center;
 }
 
@@ -255,7 +159,7 @@ export default {
 .weight-data {
   display: flex;
   justify-content: space-around;
-  margin-top: 20rpx;
+  margin-top: 40rpx;
 }
 
 .data-item {
