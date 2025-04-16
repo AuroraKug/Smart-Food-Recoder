@@ -49,13 +49,15 @@
     /* 快应用特有相关 */
     "quickapp" : {},
     /* 小程序特有相关 */
-    "mp-weixin" : {
-        "appid" : "",
-        "setting" : {
-            "urlCheck" : false
+    "mp-weixin": {
+        "appid": "wxf92bd565bb20e391", 
+        "setting": {
+            "urlCheck": false
         },
-        "usingComponents" : true
-    },
+        "usingComponents": true,
+        "cloudfunctionRoot": "cloudfunctions/",
+        "cloud": true                         
+
     "mp-alipay" : {
         "usingComponents" : true
     },

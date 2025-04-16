@@ -8,7 +8,7 @@
         placeholder-class="placeholder-style" 
         v-model="searchText"
         @input="handleInput" 
-        focus 
+         
       />
       <uni-icons type="scan" size="26" color="#9b9b9b" @click="goToCamera"></uni-icons> 
     </view>
@@ -53,34 +53,32 @@ export default {
       })
     },
     handleInput() {
-      // 清除之前的定时器
       if (this.searchTimer) {
         clearTimeout(this.searchTimer)
       }
-      
-      // 设置新的定时器，实现防抖
+
       this.searchTimer = setTimeout(async () => {
         if (this.searchText) {
           try {
-            const response = await new Promise((resolve, reject) => {
-              uni.request({
-                url: BASE_URL + '/api/food/search',
-                method: 'GET',
-                data: {
-                  keyword: this.searchText
-                },
-                header: {
-                  'Content-Type': 'application/json',
-                  'Authorization': 'Bearer ' + uni.getStorageSync('token')
-                },
-                success: (res) => resolve(res),
-                fail: (err) => reject(err)
-              })
+            const response = await wx.cloud.callContainer({
+              path: '/api/food/search', // 不需要带 BASE_URL
+              method: 'GET',
+              header: {
+                'X-WX-SERVICE': '你的服务名', // ⚠️ 替换为你的云托管服务名
+                'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+                'Content-Type': 'application/json'
+              },
+              // callContainer 的 GET 请求参数不能直接写 data，要拼接在 path 后面
+              // 所以要用 `path` 拼接参数
+              // 示例：/api/food/search?keyword=苹果
             })
 
             if (response.statusCode === 200) {
               this.suggestions = response.data
               this.showSuggestions = true
+            } else {
+              this.suggestions = []
+              this.showSuggestions = false
             }
           } catch (err) {
             console.error('搜索失败：', err)
@@ -88,11 +86,12 @@ export default {
             this.showSuggestions = false
           }
         } else {
-          this.showSuggestions = false
           this.suggestions = []
+          this.showSuggestions = false
         }
-      }, 300) // 300ms 的防抖延迟
+      }, 300)
     },
+
     selectSuggestion(item) {
       this.searchText = item.name
       this.showSuggestions = false

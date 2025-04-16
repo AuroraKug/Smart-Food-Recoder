@@ -25,19 +25,16 @@ export default {
           })
         })
 
-        const response = await new Promise((resolve, reject) => {
-          uni.request({
-            url: 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.com/api/auth/login',
-            method: 'POST',
-            data: {
-              code: loginRes.code
-            },
-            header: {
-              'Content-Type': 'application/json'
-            },
-            success: (res) => resolve(res),
-            fail: (err) => reject(err)
-          })
+        const response = await wx.cloud.callContainer({
+          path: '/api/auth/login', // 不需要带域名
+          method: 'POST',
+          data: {
+            code: loginRes.code
+          },
+          header: {
+            'X-WX-SERVICE': 'springboot-glwv', // 注意替换成你实际云托管服务名称（在控制台云托管服务详情可查）
+            'Content-Type': 'application/json'
+          }
         })
 
         if (response.statusCode === 200) {
