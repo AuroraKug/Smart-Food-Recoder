@@ -125,27 +125,58 @@ export default {
       }
     },
     async submitInfo() {
-  if (!this.userInfo.username) {
-    uni.showToast({ title: '请输入用户名', icon: 'none' }); return;
-  }
-  if (!this.userInfo.birthdate) {
-    uni.showToast({ title: '请选择出生日期', icon: 'none' }); return;
-  }
-  if (!this.userInfo.height) {
-    uni.showToast({ title: '请输入身高', icon: 'none' }); return;
-  }
-  if (!this.userInfo.currentWeight) {
-    uni.showToast({ title: '请输入当前体重', icon: 'none' }); return;
-  }
-  if (!this.userInfo.targetWeight) {
-    uni.showToast({ title: '请输入目标体重', icon: 'none' }); return;
-  }
+      // 表单验证
+      if (!this.userInfo.username || this.userInfo.username.trim() === '') {
+        uni.showToast({ title: '请输入用户名', icon: 'none' })
+        return
+      }
+      if (!this.userInfo.gender) {
+        uni.showToast({ title: '请选择性别', icon: 'none' })
+        return
+      }
+      if (!this.userInfo.birthdate) {
+        uni.showToast({ title: '请选择出生日期', icon: 'none' })
+        return
+      }
+      if (!this.userInfo.height || parseFloat(this.userInfo.height) < 50 || parseFloat(this.userInfo.height) > 250) {
+        uni.showToast({ title: '请输入有效身高(50-250cm)', icon: 'none' })
+        return
+      }
+      if (!this.userInfo.currentWeight || parseFloat(this.userInfo.currentWeight) < 30 || parseFloat(this.userInfo.currentWeight) > 200) {
+        uni.showToast({ title: '请输入有效当前体重(30-200kg)', icon: 'none' })
+        return
+      }
+      if (!this.userInfo.targetWeight || parseFloat(this.userInfo.targetWeight) < 30 || parseFloat(this.userInfo.targetWeight) > 200) {
+        uni.showToast({ title: '请输入有效目标体重(30-200kg)', icon: 'none' })
+        return
+      }
 
-  try {
-    const serviceName = 'springboot-glwv'; // ⚠️ 替换成你自己的云托管服务名
+      // 目标体重合理性检查
+      const currentWeight = parseFloat(this.userInfo.currentWeight)
+      const targetWeight = parseFloat(this.userInfo.targetWeight)
+      const weightDiff = Math.abs(currentWeight - targetWeight)
+      
+      if (weightDiff > 50) {
+        uni.showModal({
+          title: '提示',
+          content: '目标体重与当前体重差距过大，请确认是否合理',
+          success: (res) => {
+            if (res.confirm) {
+              this.submitData()
+            }
+          }
+        })
+      } else {
+        this.submitData()
+      }
+    },
 
-    // 🧩 更新用户基本信息
-    const userUpdateResponse = await wx.cloud.callContainer({
+    async submitData() {
+      try {
+        const serviceName = 'springboot-glwv'
+
+        // 更新用户基本信息
+        const userUpdateResponse = await wx.cloud.callContainer({
           path: '/api/user/update',
           method: 'POST',
           data: {
@@ -159,13 +190,13 @@ export default {
             'Authorization': 'Bearer ' + uni.getStorageSync('token'),
             'Content-Type': 'application/json'
           }
-        });
+        })
 
         if (userUpdateResponse.statusCode !== 200) {
-          throw new Error(userUpdateResponse.data.message || '保存用户信息失败');
+          throw new Error(userUpdateResponse.data.message || '保存用户信息失败')
         }
 
-        // 🧩 保存体重目标信息
+        // 保存体重目标信息
         const weightResponse = await wx.cloud.callContainer({
           path: '/api/weight/goal/save',
           method: 'POST',
@@ -179,31 +210,30 @@ export default {
             'Authorization': 'Bearer ' + uni.getStorageSync('token'),
             'Content-Type': 'application/json'
           }
-        });
+        })
 
         if (weightResponse.statusCode === 200) {
           uni.showToast({
             title: '信息保存成功',
             icon: 'success'
-          });
+          })
 
-          // ✅ 跳转首页
+          // 跳转首页
           uni.switchTab({
             url: '/pages/home/home'
-          });
+          })
         } else {
-          throw new Error(weightResponse.data.message || '保存体重信息失败');
+          throw new Error(weightResponse.data.message || '保存体重信息失败')
         }
 
       } catch (err) {
-        console.error('保存信息失败：', err);
+        console.error('保存信息失败：', err)
         uni.showToast({
           title: err.message || '保存失败',
           icon: 'none'
-        });
+        })
       }
     }
-
   }
 }
 </script>

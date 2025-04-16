@@ -149,9 +149,6 @@ export default {
         return
       }
 
-      console.log(this.selectedFood)
-      console.log(this.weight)
-
       try {
         const now = new Date()
         const recordTime = now.getFullYear() + '-' +
@@ -167,10 +164,10 @@ export default {
             foodName: this.selectedFood.name,
             caloriesPer100g: parseFloat(this.selectedFood.calories),
             weight: parseFloat(this.weight),
-            recordTime: recordTime // ✅ 如果你的后端需要时间字段
+            recordTime: recordTime
           },
           header: {
-            'X-WX-SERVICE': 'springboot-glwv', // ⚠️ 替换为实际云托管服务名
+            'X-WX-SERVICE': 'springboot-glwv',
             'Authorization': 'Bearer ' + uni.getStorageSync('token'),
             'Content-Type': 'application/json'
           }
@@ -182,6 +179,8 @@ export default {
             icon: 'success'
           })
           this.closeRecordPopup()
+          // 发送全局事件，通知其他组件刷新数据
+          uni.$emit('food-recorded')
         } else {
           throw new Error(response.data.message || '记录失败')
         }

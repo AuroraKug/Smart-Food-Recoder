@@ -36,9 +36,7 @@ export default {
     onPullDownRefresh() {
       this.isRefreshing = true
       // 发送各个组件的刷新事件
-      uni.$emit('refresh-weight-data') // 体重数据刷新
-      uni.$emit('refresh-health-data') // 健康数据刷新
-      uni.$emit('refresh-recent-records') // 最近记录刷新
+
       setTimeout(() => {
         this.isRefreshing = false
         uni.stopPullDownRefresh()

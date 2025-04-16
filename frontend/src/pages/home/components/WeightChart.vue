@@ -95,15 +95,11 @@ export default {
     uni.$on('weight-updated', () => {
       this.getWeightData()
     })
-    // 监听体重数据刷新事件
-    uni.$on('refresh-weight-data', () => {
-      this.getWeightData()
-    })
+
   },
   beforeDestroy() {
     // 移除事件监听
     uni.$off('weight-updated')
-    uni.$off('refresh-weight-data')
   },
 }
 </script>

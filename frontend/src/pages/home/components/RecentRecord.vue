@@ -17,8 +17,6 @@
 </template>
 
 <script>
-const BASE_URL = 'https://springboot-glwv-152951-5-1353388712.sh.run.tcloudbase.com'
-
 export default {
   data() {
     return {
@@ -30,14 +28,15 @@ export default {
   },
   mounted() {
     this.fetchRecentRecords()
-    // 监听最近记录刷新事件
-    uni.$on('refresh-recent-records', () => {
+
+    // 监听食物记录事件
+    uni.$on('food-recorded', () => {
       this.fetchRecentRecords()
     })
   },
   beforeDestroy() {
     // 移除事件监听
-    uni.$off('refresh-recent-records')
+    uni.$off('food-recorded')
   },
   methods: {
     async fetchRecentRecords() {

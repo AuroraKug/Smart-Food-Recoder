@@ -26,10 +26,15 @@ export default {
     uni.$on('refresh-health-data', () => {
       this.fetchTodayCalories()
     })
+    // 监听食物记录事件
+    uni.$on('food-recorded', () => {
+      this.fetchTodayCalories()
+    })
   },
   beforeDestroy() {
     // 移除事件监听
     uni.$off('refresh-health-data')
+    uni.$off('food-recorded')
   },
   methods: {
     async fetchTodayCalories() {

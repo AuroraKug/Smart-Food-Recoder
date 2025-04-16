@@ -321,7 +321,6 @@ export default {
         })
 
         const fileID = uploadRes.fileID
-        console.log('上传成功 fileID:', fileID)
 
         // 2️⃣ 使用 callContainer 请求后端识别接口
         const response = await wx.cloud.callContainer({
@@ -432,7 +431,7 @@ export default {
             totalCalories: this.totalCalories
           },
           header: {
-            'X-WX-SERVICE': 'springboot-glwv', // ⚠️ 替换为你实际的云托管服务名称
+            'X-WX-SERVICE': 'springboot-glwv',
             'Authorization': 'Bearer ' + uni.getStorageSync('token'),
             'Content-Type': 'application/json'
           }
@@ -444,6 +443,8 @@ export default {
             icon: 'success'
           })
           this.closeRecordPopup()
+          // 发送全局事件，通知其他组件刷新数据
+          uni.$emit('food-recorded')
         } else {
           throw new Error(response.data.message || '记录失败')
         }
