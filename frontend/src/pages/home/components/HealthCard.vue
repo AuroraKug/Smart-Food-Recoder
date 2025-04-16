@@ -34,27 +34,28 @@ export default {
   methods: {
     async fetchTodayCalories() {
       try {
-        const res = await new Promise((resolve, reject) => {
-          uni.request({
-            url: BASE_URL + '/api/food/record/today',
-            method: 'GET',
-            header: {
-              'Authorization': 'Bearer ' + uni.getStorageSync('token'),
-              'Content-Type': 'application/json'
-            },
-            success: resolve,
-            fail: reject
-          }) 
-        }) 
-        
+        const res = await wx.cloud.callContainer({
+          path: '/api/food/record/today',
+          method: 'GET',
+          header: {
+            'X-WX-SERVICE': 'springboot-glwv', // ⚠️ 替换为你的实际云托管服务名
+            'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+            'Content-Type': 'application/json'
+          }
+        })
+        console.log('获取今日卡路里：', res)
         if (res.data && res.data.totalCalories !== undefined) {
           this.totalCalories = res.data.totalCalories.toLocaleString()
+        } else {
+          this.totalCalories = '0'
         }
+
       } catch (err) {
         console.error('获取今日卡路里失败：', err)
         this.totalCalories = '0'
       }
     }
+
   }
 }
 </script>

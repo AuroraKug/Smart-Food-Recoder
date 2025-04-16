@@ -120,103 +120,100 @@ export default {
   methods: {
     async fetchUserInfo() {
       try {
+        const serviceName = 'springboot-glwv' // ⚠️ 替换为你自己的云托管服务名
+
         // 获取用户基本信息
-        const userResponse = await new Promise((resolve, reject) => {
-          uni.request({
-            url: BASE_URL + '/api/user/info',
-            method: 'GET',
-            header: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + uni.getStorageSync('token')
-            },
-            success: (res) => resolve(res),
-            fail: (err) => reject(err)
-          })
-        });
+        const userResponse = await wx.cloud.callContainer({
+          path: '/api/user/info',
+          method: 'GET',
+          header: {
+            'X-WX-SERVICE': serviceName,
+            'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+            'Content-Type': 'application/json'
+          }
+        })
 
         // 获取体重目标信息
-        const weightResponse = await new Promise((resolve, reject) => {
-          uni.request({
-            url: BASE_URL + '/api/weight/goal/getGoal',
-            method: 'GET',
-            header: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + uni.getStorageSync('token')
-            },
-            success: (res) => resolve(res),
-            fail: (err) => reject(err)
-          })
-        });
+        const weightResponse = await wx.cloud.callContainer({
+          path: '/api/weight/goal/getGoal',
+          method: 'GET',
+          header: {
+            'X-WX-SERVICE': serviceName,
+            'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+            'Content-Type': 'application/json'
+          }
+        })
 
         if (userResponse.statusCode === 200) {
-          const userInfo = userResponse.data;
-          this.profileData.username = userInfo.userName || '未命名用户';
-          this.profileData.gender = userInfo.gender || '未知';
-          this.profileData.birthdate = userInfo.birthdate || '2000-01-01';
-          this.profileData.height = userInfo.height || '';
+          const userInfo = userResponse.data
+          this.profileData.username = userInfo.userName || '未命名用户'
+          this.profileData.gender = userInfo.gender || '未知'
+          this.profileData.birthdate = userInfo.birthdate || '2000-01-01'
+          this.profileData.height = userInfo.height || ''
         }
 
         if (weightResponse.statusCode === 200) {
-          this.weightGoal = weightResponse.data;
-          this.profileData.initialWeight = this.weightGoal.startWeight || 0;
-          this.profileData.currentWeight = this.weightGoal.currentWeight || 0;
+          this.weightGoal = weightResponse.data
+          this.profileData.initialWeight = this.weightGoal.startWeight || 0
+          this.profileData.currentWeight = this.weightGoal.currentWeight || 0
         }
+
       } catch (err) {
-        console.error('获取用户信息失败：', err);
+        console.error('获取用户信息失败：', err)
       }
     },
+
     async updateUserInfo() {
       try {
-        const response = await new Promise((resolve, reject) => {
-          uni.request({
-            url: BASE_URL + '/api/user/update',
-            method: 'POST',
-            data: {
-              userName: this.profileData.username,
-              birthdate: this.profileData.birthdate,
-              gender: this.profileData.gender,
-              height: this.profileData.height,
-            },
-            header: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + uni.getStorageSync('token')  
-            },
-            success: (res) => resolve(res),
-            fail: (err) => reject(err)
-          })
+        const serviceName = 'springboot-glwv'
+
+        const response = await wx.cloud.callContainer({
+          path: '/api/user/update',
+          method: 'POST',
+          data: {
+            userName: this.profileData.username,
+            birthdate: this.profileData.birthdate,
+            gender: this.profileData.gender,
+            height: this.profileData.height
+          },
+          header: {
+            'X-WX-SERVICE': serviceName,
+            'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+            'Content-Type': 'application/json'
+          }
         })
 
-      
-        await this.fetchUserInfo(); 
+        await this.fetchUserInfo()
+
       } catch (err) {
         console.error('更新失败：', err)
       }
     },
-    async updateUserWeightGoal(){
+
+    async updateUserWeightGoal() {
       try {
+        const serviceName = 'springboot-glwv'
 
-        const response = await new Promise((resolve, reject) => {
-          uni.request({
-            url: BASE_URL + '/api/weight/goal/save',
-            method: 'POST',
-            data: {
-              startWeight: this.profileData.initialWeight,
-              currentWeight: this.profileData.currentWeight,
-              targetWeight: this.weightGoal.targetWeight
-            },
-            header: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + uni.getStorageSync('token')
-            },
-            success: (res) => resolve(res),
-            fail: (err) => reject(err)
-          })
+        const response = await wx.cloud.callContainer({
+          path: '/api/weight/goal/save',
+          method: 'POST',
+          data: {
+            startWeight: this.profileData.initialWeight,
+            currentWeight: this.profileData.currentWeight,
+            targetWeight: this.weightGoal.targetWeight
+          },
+          header: {
+            'X-WX-SERVICE': serviceName,
+            'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+            'Content-Type': 'application/json'
+          }
         })
 
       } catch (err) {
         console.error('更新失败：', err)
       }
     },
+
     // 初始化日期范围
     initDateRange() {
       const years = [];

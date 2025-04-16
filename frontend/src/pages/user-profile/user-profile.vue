@@ -65,32 +65,31 @@ export default {
     // 获取用户信息
     async getUserProfile() {
       try {
-        // 获取后端用户信息
-        const res = await new Promise((resolve, reject) => {
-          uni.request({
-            url: BASE_URL + '/api/user/info',
-            method: 'GET',
-            header: {
-              'Authorization': 'Bearer ' + uni.getStorageSync('token'),
-              'Content-Type': 'application/json'
-            },
-            success: resolve,
-            fail: reject
-          });
-        });
+        const serviceName = 'springboot-glwv' // ⚠️ 替换为你自己的云托管服务名
+
+        // ✅ 获取后端用户信息（替换 uni.request）
+        const res = await wx.cloud.callContainer({
+          path: '/api/user/info',
+          method: 'GET',
+          header: {
+            'X-WX-SERVICE': serviceName,
+            'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+            'Content-Type': 'application/json'
+          }
+        })
 
         if (res.statusCode === 200) {
           this.userInfo.nickname = res.data.userName
         }
 
-        // 检查是否已授权
+        // ✅ 获取小程序用户头像（无需替换）
         uni.getSetting({
           success: (res) => {
             if (res.authSetting['scope.userInfo']) {
-              // 已经授权，可以直接调用 getUserInfo 获取头像
+              // 已授权，获取头像
               this.getUserInfo()
             } else {
-              // 未授权，调用微信登录接口
+              // 未授权，引导授权
               uni.getUserProfile({
                 desc: '用于完善用户资料',
                 success: (res) => {
@@ -107,12 +106,13 @@ export default {
             }
           }
         })
+
       } catch (err) {
-        console.error('获取用户信息失败：', err);
+        console.error('获取用户信息失败：', err)
         uni.showToast({
           title: '获取用户信息失败',
           icon: 'none'
-        });
+        })
       }
     },
 

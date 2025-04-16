@@ -92,30 +92,31 @@ export default {
   methods: {
     async getWeightData() {
       try {
-        const weightResponse = await new Promise((resolve, reject) => {
-          uni.request({
-            url: BASE_URL + '/api/weight/goal/getGoal',
-            method: 'GET',
-            header: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + uni.getStorageSync('token')
-            },
-            success: (res) => resolve(res),
-            fail: (err) => reject(err)
-          })
+        const weightResponse = await wx.cloud.callContainer({
+          path: '/api/weight/goal/getGoal',
+          method: 'GET',
+          header: {
+            'X-WX-SERVICE': 'springboot-glwv', // ⚠️ 替换为实际服务名
+            'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+            'Content-Type': 'application/json'
+          }
         })
-        this.initialWeight = weightResponse.data.startWeight
-        this.currentWeight = weightResponse.data.currentWeight
-        this.targetWeight = weightResponse.data.targetWeight
+
+        const data = weightResponse.data
+        this.initialWeight = data.startWeight
+        this.currentWeight = data.currentWeight
+        this.targetWeight = data.targetWeight
         this.weightData = [
           { label: '初始体重', value: this.initialWeight },
           { label: '当前体重', value: this.currentWeight },
           { label: '目标体重', value: this.targetWeight }
         ]
+
       } catch (err) {
-        console.error(err)
+        console.error('获取体重数据失败：', err)
       }
     },
+
     drawProgressCircle() {
       const query = uni.createSelectorQuery().in(this)
       query.select('.progress-container').boundingClientRect((rect) => {

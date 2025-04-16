@@ -42,23 +42,23 @@ export default {
   methods: {
     async fetchRecentRecords() {
       try {
-        const response = await new Promise((resolve, reject) => {
-          uni.request({
-            url: BASE_URL + '/api/food/record/user',
-            method: 'GET',
-            header: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + uni.getStorageSync('token')
-            },
-            success: (res) => resolve(res),
-            fail: (err) => reject(err)
-          })
+        const response = await wx.cloud.callContainer({
+          path: '/api/food/record/user',
+          method: 'GET',
+          header: {
+            'X-WX-SERVICE': 'springboot-glwv', // ⚠️ 替换为实际服务名
+            'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+            'Content-Type': 'application/json'
+          }
         })
 
         if (response.statusCode === 200) {
-          // 只取最近三条记录
+          // ✅ 只取最近三条记录
           this.recentRecords = response.data.slice(0, 3)
+        } else {
+          throw new Error(response.data.message || '获取记录失败')
         }
+
       } catch (err) {
         console.error('获取记录失败：', err)
         uni.showToast({
@@ -66,12 +66,8 @@ export default {
           icon: 'none'
         })
       }
-    },
-    navigateToRecords() {
-      uni.navigateTo({
-        url: '/pages/food-record/food-record'
-      })
     }
+
   }
 }
 </script>

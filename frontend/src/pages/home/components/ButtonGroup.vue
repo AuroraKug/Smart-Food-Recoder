@@ -46,56 +46,59 @@ export default {
   methods: {
     async fetchWeightData() {
       try {
-        const response = await new Promise((resolve, reject) => {
-          uni.request({
-            url: BASE_URL + '/api/weight/goal/getGoal',
-            method: 'GET',
-            header: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + uni.getStorageSync('token')
-            },
-            success: (res) => resolve(res),
-            fail: (err) => reject(err)
-          })
+        const response = await wx.cloud.callContainer({
+          path: '/api/weight/goal/getGoal',
+          method: 'GET',
+          header: {
+            'X-WX-SERVICE': 'springboot-glwv', // ⚠️ 替换为你自己的云托管服务名
+            'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+            'Content-Type': 'application/json'
+          }
         })
 
         if (response.statusCode === 200) {
           this.weightData = response.data
+        } else {
+          throw new Error(response.data.message || '获取体重数据失败')
         }
+
       } catch (err) {
         console.error('获取体重数据失败：', err)
+        uni.showToast({ title: '获取体重数据失败', icon: 'none' })
       }
     },
+
     async updateWeight(currentWeight) {
       try {
-        const response = await new Promise((resolve, reject) => {
-          uni.request({
-            url: BASE_URL + '/api/weight/goal/save',
-            method: 'POST',
-            data: {
-              startWeight: this.weightData.startWeight,
-              currentWeight: currentWeight,
-              targetWeight: this.weightData.targetWeight
-            },
-            header: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + uni.getStorageSync('token')
-            },
-            success: (res) => resolve(res),
-            fail: (err) => reject(err)
-          })
+        const response = await wx.cloud.callContainer({
+          path: '/api/weight/goal/save',
+          method: 'POST',
+          data: {
+            startWeight: this.weightData.startWeight,
+            currentWeight: currentWeight,
+            targetWeight: this.weightData.targetWeight
+          },
+          header: {
+            'X-WX-SERVICE': 'springboot-glwv', // ⚠️ 替换为你自己的云托管服务名
+            'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+            'Content-Type': 'application/json'
+          }
         })
 
         if (response.statusCode === 200) {
           uni.showToast({ title: '更新成功', icon: 'success' })
           this.weightData.currentWeight = currentWeight
           uni.$emit('weight-updated', currentWeight)
+        } else {
+          throw new Error(response.data.message || '更新体重失败')
         }
+
       } catch (err) {
         console.error('更新体重失败：', err)
         uni.showToast({ title: '更新失败', icon: 'none' })
       }
     },
+
     openWeightKeyboard() {
       this.fetchWeightData().then(() => {
         this.$refs.weightKeyboard.open(parseFloat(this.weightData.currentWeight) || '')

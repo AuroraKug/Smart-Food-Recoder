@@ -64,7 +64,7 @@ export default {
               path: '/api/food/search', // 不需要带 BASE_URL
               method: 'GET',
               header: {
-                'X-WX-SERVICE': '你的服务名', // ⚠️ 替换为你的云托管服务名
+                'X-WX-SERVICE': 'springboot-glwv', // ⚠️ 替换为你的云托管服务名
                 'Authorization': 'Bearer ' + uni.getStorageSync('token'),
                 'Content-Type': 'application/json'
               },

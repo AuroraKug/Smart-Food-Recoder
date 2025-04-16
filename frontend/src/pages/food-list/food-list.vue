@@ -74,25 +74,21 @@ export default {
   },
   methods: {
     async handleSearch(keyword) {
-      try {
-        const response = await new Promise((resolve, reject) => {
-          uni.request({
-            url: BASE_URL + '/api/food/search',
-            method: 'GET',
-            data: {
-              keyword: keyword
-            },
-            header: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + uni.getStorageSync('token')
-            },
-            success: (res) => resolve(res),
-            fail: (err) => reject(err)
-          })
+  try {
+    const response = await wx.cloud.callContainer({
+          path: `/api/food/search?keyword=${encodeURIComponent(keyword)}`,
+          method: 'GET',
+          header: {
+            'X-WX-SERVICE': 'springboot-glwv', 
+            'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+            'Content-Type': 'application/json'
+          }
         })
 
         if (response.statusCode === 200) {
           this.foodList = response.data
+        } else {
+          throw new Error(response.data.message || '搜索失败')
         }
       } catch (err) {
         console.error('搜索失败：', err)
@@ -102,6 +98,7 @@ export default {
         })
       }
     },
+
     showRecordPopup(food) {
       this.selectedFood = food
       this.weight = '100'
@@ -152,8 +149,9 @@ export default {
         return
       }
 
-      console.log(this.selectedFood) 
-      console.log(this.weight) 
+      console.log(this.selectedFood)
+      console.log(this.weight)
+
       try {
         const now = new Date()
         const recordTime = now.getFullYear() + '-' +
@@ -162,22 +160,20 @@ export default {
           String(now.getHours()).padStart(2, '0') + ':' +
           String(now.getMinutes()).padStart(2, '0')
 
-        const response = await new Promise((resolve, reject) => {
-          uni.request({
-            url: BASE_URL + '/api/food/record',
-            method: 'POST',
-            data: {
-              foodName: this.selectedFood.name,
-              caloriesPer100g: parseFloat(this.selectedFood.calories),
-              weight: parseFloat(this.weight),
-            },
-            header: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + uni.getStorageSync('token')
-            },
-            success: (res) => resolve(res),
-            fail: (err) => reject(err)
-          })
+        const response = await wx.cloud.callContainer({
+          path: '/api/food/record',
+          method: 'POST',
+          data: {
+            foodName: this.selectedFood.name,
+            caloriesPer100g: parseFloat(this.selectedFood.calories),
+            weight: parseFloat(this.weight),
+            recordTime: recordTime // ✅ 如果你的后端需要时间字段
+          },
+          header: {
+            'X-WX-SERVICE': 'springboot-glwv', // ⚠️ 替换为实际云托管服务名
+            'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+            'Content-Type': 'application/json'
+          }
         })
 
         if (response.statusCode === 200) {
@@ -186,7 +182,10 @@ export default {
             icon: 'success'
           })
           this.closeRecordPopup()
+        } else {
+          throw new Error(response.data.message || '记录失败')
         }
+
       } catch (err) {
         console.error('记录失败：', err)
         uni.showToast({
@@ -195,6 +194,7 @@ export default {
         })
       }
     }
+
   }
 }
 </script>

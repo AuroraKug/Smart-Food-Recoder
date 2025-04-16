@@ -220,9 +220,15 @@ export default {
     },
     async identifyFood() {
       try {
+        const envId = 'prod-0gm3nrfmdbf62bd3' // 例如：cloud1-xxx
+        const serviceName = 'springboot-glwv' // 例如：springboot-glwv
+        const path = '/api/photo'
+
+        const uploadUrl = `https://${envId}.${serviceName}.app.tcloudbase.com${path}`
+
         const response = await new Promise((resolve, reject) => {
-          uni.uploadFile({
-            url: BASE_URL + '/api/photo',
+          wx.uploadFile({
+            url: uploadUrl,
             filePath: this.capturedImagePath,
             name: 'file',
             header: {
@@ -236,29 +242,25 @@ export default {
         if (response.statusCode === 200) {
           const data = JSON.parse(response.data)
           if (data.result && data.result.length > 0) {
-            // 设置主要结果
             this.mainResult = data.result[0]
             this.progress = (this.mainResult.probability * 100).toFixed(2)
-            
-            // 过滤其他结果（概率大于5%且不是"非菜"）
-            this.otherResults = data.result.slice(1).filter(item => 
+
+            this.otherResults = data.result.slice(1).filter(item =>
               parseFloat(item.probability) > 0.05 && item.name !== '非菜'
             )
-            
-            // 检查是否有低概率结果
-            this.hasLowProbability = data.result.some(item => 
+
+            this.hasLowProbability = data.result.some(item =>
               parseFloat(item.probability) <= 0.05
             )
           }
         }
+
       } catch (err) {
         console.error('识别失败：', err)
-        uni.showToast({
-          title: '识别失败',
-          icon: 'none'
-        })
+        uni.showToast({ title: '识别失败', icon: 'none' })
       }
     },
+
     backToPreviousPage() {
       uni.navigateBack()
     },
@@ -319,24 +321,21 @@ export default {
           String(now.getHours()).padStart(2, '0') + ':' +
           String(now.getMinutes()).padStart(2, '0')
 
-        const response = await new Promise((resolve, reject) => {
-          uni.request({
-            url: BASE_URL + '/api/food/record',
-            method: 'POST',
-            data: {
-              foodName: this.selectedFood.name,
-              caloriesPer100g: parseFloat(this.selectedFood.calorie),
-              weight: parseFloat(this.weight),
-              recordTime: recordTime,
-              totalCalories: this.totalCalories
-            },
-            header: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + uni.getStorageSync('token')
-            },
-            success: (res) => resolve(res),
-            fail: (err) => reject(err)
-          })
+        const response = await wx.cloud.callContainer({
+          path: '/api/food/record',
+          method: 'POST',
+          data: {
+            foodName: this.selectedFood.name,
+            caloriesPer100g: parseFloat(this.selectedFood.calorie),
+            weight: parseFloat(this.weight),
+            recordTime: recordTime,
+            totalCalories: this.totalCalories
+          },
+          header: {
+            'X-WX-SERVICE': 'springboot-glwv', // ⚠️ 替换为你实际的云托管服务名称
+            'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+            'Content-Type': 'application/json'
+          }
         })
 
         if (response.statusCode === 200) {
@@ -345,7 +344,10 @@ export default {
             icon: 'success'
           })
           this.closeRecordPopup()
+        } else {
+          throw new Error(response.data.message || '记录失败')
         }
+
       } catch (err) {
         console.error('记录失败：', err)
         uni.showToast({
@@ -354,6 +356,7 @@ export default {
         })
       }
     }
+
   }
 }
 </script>

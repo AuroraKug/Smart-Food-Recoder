@@ -78,38 +78,29 @@ export default {
     async fetchSearchHistory() {
       if (this.isLoading) return
       this.isLoading = true
-      
+
       try {
-        const res = await new Promise((resolve, reject) => {
-          uni.request({
-            url: BASE_URL + '/api/photo/searchHistory',
-            method: 'GET',
-            data: {
-              page: this.currentPage,
-              size: this.pageSize
-            },
-            header: {
-              'Authorization': 'Bearer ' + uni.getStorageSync('token'),
-              'Content-Type': 'application/json'
-            },
-            success: resolve,
-            fail: reject
-          })
+        const query = `?page=${this.currentPage}&size=${this.pageSize}`
+        const response = await wx.cloud.callContainer({
+          path: `/api/photo/searchHistory${query}`,
+          method: 'GET',
+          header: {
+            'X-WX-SERVICE': 'springboot-glwv', // ⚠️ 替换为你自己的云托管服务名
+            'Authorization': 'Bearer ' + uni.getStorageSync('token'),
+            'Content-Type': 'application/json'
+          }
         })
-        
-        if (res.statusCode === 200) {
-          const { records, totalElements, totalPages } = res.data
-          
-          // 如果是第一页，重置数据
+
+        if (response.statusCode === 200) {
+          const { records, totalElements, totalPages } = response.data
+
           if (this.currentPage === 0) {
             this.rawHistoryData = [...records]
             this.historyData = []
           } else {
-            // 追加新数据到原始数据
             this.rawHistoryData = [...this.rawHistoryData, ...records]
           }
 
-          // 处理用于显示的数据
           const processedData = records.map(item => {
             const foodCandidates = item.foodCandidates || {}
             let maxProb = 0
@@ -119,7 +110,7 @@ export default {
               maxProb = (parseFloat(foodCandidates.result[0].probability) * 100).toFixed(2)
               foodName = foodCandidates.result[0].name
             }
-            
+
             return {
               id: item.id,
               imageURL: item.imageURL || '',
@@ -129,12 +120,10 @@ export default {
             }
           })
 
-          // 追加新处理的数据
           this.historyData = [...this.historyData, ...processedData]
-          
-          // 判断是否还有更多数据
           this.hasMore = this.currentPage < totalPages - 1
         }
+
       } catch (err) {
         console.error('获取识别历史失败：', err)
         uni.showToast({
@@ -145,6 +134,7 @@ export default {
         this.isLoading = false
       }
     },
+
 
     isToday(date) {
       const today = new Date()
