@@ -82,7 +82,7 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f8f8f8;
+  background-color: #fff;
 }
 
 .login-content {
