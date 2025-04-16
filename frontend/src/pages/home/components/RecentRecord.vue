@@ -39,6 +39,11 @@ export default {
     uni.$off('food-recorded')
   },
   methods: {
+    navigateToRecords() {
+      uni.navigateTo({
+        url: '/pages/food-record/food-record'
+      })
+    },
     async fetchRecentRecords() {
       try {
         const response = await wx.cloud.callContainer({
