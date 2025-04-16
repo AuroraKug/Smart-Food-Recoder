@@ -43,7 +43,7 @@ export default {
     takePhoto() {
       const ctx = uni.createCameraContext(this) 
       ctx.takePhoto({
-        quality: 'high',
+        quality: 'low',
         success: (res) => {
           const imagePath = res.tempImagePath 
           // 跳转到 identified-result 页面并传递图片路径
