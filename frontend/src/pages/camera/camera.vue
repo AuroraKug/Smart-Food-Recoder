@@ -36,44 +36,119 @@
 export default {
   data() {
     return {
-      devicePosition: 'back'
+      devicePosition: 'back',
+      hasCameraPermission: false
     }
   },
+  onLoad() {
+    this.checkCameraPermission()
+  },
   methods: {
+    async checkCameraPermission() {
+      try {
+        // 检查相机权限
+        const setting = await uni.getSetting()
+        if (!setting.authSetting['scope.camera']) {
+          // 如果没有权限，请求权限
+          const auth = await uni.authorize({
+            scope: 'scope.camera'
+          })
+          if (auth.errMsg === 'authorize:ok') {
+            this.hasCameraPermission = true
+          } else {
+            this.showPermissionDenied()
+          }
+        } else {
+          this.hasCameraPermission = true
+        }
+      } catch (err) {
+        console.error('检查相机权限失败：', err)
+        this.showPermissionDenied()
+      }
+    },
+    showPermissionDenied() {
+      uni.showModal({
+        title: '提示',
+        content: '需要相机权限才能使用拍照功能，是否前往设置开启权限？',
+        success: (res) => {
+          if (res.confirm) {
+            uni.openSetting({
+              success: (setting) => {
+                if (setting.authSetting['scope.camera']) {
+                  this.hasCameraPermission = true
+                }
+              }
+            })
+          } else {
+            uni.navigateBack()
+          }
+        }
+      })
+    },
     takePhoto() {
-      const ctx = uni.createCameraContext(this) 
+      if (!this.hasCameraPermission) {
+        this.showPermissionDenied()
+        return
+      }
+
+      const ctx = uni.createCameraContext(this)
       ctx.takePhoto({
         quality: 'low',
         success: (res) => {
-          const imagePath = res.tempImagePath 
+          const imagePath = res.tempImagePath
           // 跳转到 identified-result 页面并传递图片路径
           uni.navigateTo({
             url: `/pages/identified-result/identified-result?source=camera&imageURL=${encodeURIComponent(imagePath)}`
-          }) 
+          })
+        },
+        fail: (err) => {
+          console.error('拍照失败：', err)
+          uni.showToast({
+            title: '拍照失败，请重试',
+            icon: 'none'
+          })
         }
-      }) 
+      })
     },
     switchCamera() {
-      this.devicePosition = this.devicePosition === 'back' ? 'front' : 'back' 
+      if (!this.hasCameraPermission) {
+        this.showPermissionDenied()
+        return
+      }
+      this.devicePosition = this.devicePosition === 'back' ? 'front' : 'back'
     },
     chooseImage() {
       uni.chooseImage({
         count: 1,
         sourceType: ['album'],
         success: (res) => {
-          const imagePath = res.tempFilePaths[0] 
+          const imagePath = res.tempFilePaths[0]
           uni.navigateTo({
             url: `/pages/identified-result/identified-result?source=camera&imageURL=${encodeURIComponent(imagePath)}`
-          }) 
+          })
+        },
+        fail: (err) => {
+          console.error('选择图片失败：', err)
+          uni.showToast({
+            title: '选择图片失败，请重试',
+            icon: 'none'
+          })
         }
-      }) 
+      })
     },
     cameraError(e) {
-      console.error('相机错误:', e.detail) 
-      uni.showToast({
-        title: '相机初始化失败',
-        icon: 'none'
-      }) 
+      console.error('相机错误:', e.detail)
+      uni.showModal({
+        title: '提示',
+        content: '相机初始化失败，请检查相机权限或重启小程序',
+        success: (res) => {
+          if (res.confirm) {
+            this.checkCameraPermission()
+          } else {
+            uni.navigateBack()
+          }
+        }
+      })
     }
   }
 }
